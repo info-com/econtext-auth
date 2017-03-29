@@ -3,9 +3,11 @@ Installation Instructions:
 
 Installation from source is currently the only method available.
 
+```shell
 $ git clone https://github.com/info-com/econtext-auth.git
 $ cd econtext-auth/
 $ sudo python2.7 setup.py install
+```
 
 You may need to manually install gunicorn and gevent as they can sometimes be a little bit tricky.
 
@@ -19,6 +21,8 @@ be able to control logging, etc.
 To run:
 =======
 
+```shell
 $ sudo econtextauth-engine -vvv
+```
 
 Most robust logging, should tell you quite a bit.  Drop the "v" to reduce the logging more.
