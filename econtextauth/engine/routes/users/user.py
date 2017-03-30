@@ -2,7 +2,7 @@ import logging
 log = logging.getLogger('econtext')
 
 
-class Users:
+class User:
     """
     Users
 
@@ -18,7 +18,7 @@ class Users:
     
     @staticmethod
     def get_route_constructor(*args, **kwargs):
-        return Users(*args)
+        return User(*args)
     
     def __init__(self, econtext):
         self.econtext = econtext
@@ -41,6 +41,7 @@ class Users:
         :param resp:
         :return:
         """
+        self.econtext.get('rethinkdb')
         resp.body = "ok"
         return True
     

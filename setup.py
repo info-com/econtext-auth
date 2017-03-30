@@ -19,7 +19,7 @@ setup(
         'falcon',
         'gevent',
         'gunicorn',
-        'rethinkdb'
+        'rethinkdb', 'remodel'
     ],
     
     entry_points={
