@@ -1,3 +1,4 @@
+import rethinkdb as rethinkdb
 from gevent import monkey; monkey.patch_all()
 import falcon
 import gunicorn.app.base
@@ -7,7 +8,7 @@ from econtextauth.engine import routes
 from econtextauth.engine.middleware.econtext.econtext import EcontextMiddleware
 from econtextauth.engine.middleware.econtext import exception_handler, error_serializer
 from multiprocessing import cpu_count
-import rethinkdb
+import rethinkdb as r
 
 try:
     import configparser
@@ -92,10 +93,10 @@ def setup_app(config):
     else:
         econtext_config = dict(config.items('econtextauth'))
 
-    rethinkdb_host = abspath(econtext_config.get('rethinkdb_host'))
-    rethinkdb_port = abspath(econtext_config.get('rethinkdb_port', 28015))
+    rethinkdb_host = econtext_config.get('rethinkdb_host')
+    rethinkdb_port = econtext_config.get('rethinkdb_port', 28015)
     log.debug("Loading RethinkDB from {}:{}".format(rethinkdb_host, rethinkdb_port))
-    rethinkdb = rethinkdb.connect(rethinkdb_host, rethinkdb_port)
+    rethinkdb = r.connect(rethinkdb_host, rethinkdb_port)
     
     route_options = {
         'rethinkdb': rethinkdb,

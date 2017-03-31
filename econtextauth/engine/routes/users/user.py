@@ -12,8 +12,8 @@ class User:
     DELETE - Remove a user (updates status to deleted - doesn't actually remove the record)
     """
     routes = [
-        'users',
-        'users/{userid}'
+        'users/user',
+        'users/user/{userid}'
     ]
     
     @staticmethod
