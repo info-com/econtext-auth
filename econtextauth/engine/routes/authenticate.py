@@ -53,4 +53,4 @@ class Authenticate:
         """
         rethinkdb = self.options.get('rethinkdb')
         resp.body = "OK"
-        return true
+        return True

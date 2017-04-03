@@ -12,6 +12,6 @@ route_classes = [
     ping.Ping,
     users.user.User,
     users.search.Search,
-    # applications.Appliation,
-    # groups.Group,
+    #applications.Appliation,
+    groups.group.Group,
 ]

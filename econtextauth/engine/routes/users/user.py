@@ -20,7 +20,7 @@ class User:
         'users/user',
         'users/user/{userid}'
     ]
-    remodel.connection.pool.configure(db="test")
+    remodel.connection.pool.configure(db="econtext_users")
     @staticmethod
     def get_route_constructor(*args, **kwargs):
         return User(*args)

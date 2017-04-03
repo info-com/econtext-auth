@@ -5,6 +5,9 @@ Create our various tables, indexes, etc
 from econtextauth.models import *
 import remodel
 import rethinkdb as r
+import remodel.utils
+import remodel.connection
+import remodel.helpers
 
 
 remodel.helpers.create_tables()
