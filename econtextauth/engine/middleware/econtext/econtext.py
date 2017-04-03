@@ -36,7 +36,6 @@ class eContextJsonEncoder(json.JSONEncoder):
 class EcontextMiddleware(object):
     def process_request(self, req, resp):
         """Process the request before routing it.
-
         Args:
             req: Request object that will eventually be
                 routed to an on_* responder method.

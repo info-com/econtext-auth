@@ -8,6 +8,8 @@ from econtextauth.engine import routes
 from econtextauth.engine.middleware.econtext.econtext import EcontextMiddleware
 from econtextauth.engine.middleware.econtext import exception_handler, error_serializer
 from multiprocessing import cpu_count
+
+import remodel.connection
 import rethinkdb as r
 
 try:
@@ -96,7 +98,8 @@ def setup_app(config):
     rethinkdb_host = econtext_config.get('rethinkdb_host')
     rethinkdb_port = econtext_config.get('rethinkdb_port', 28015)
     log.debug("Loading RethinkDB from {}:{}".format(rethinkdb_host, rethinkdb_port))
-    rethinkdb = r.connect(rethinkdb_host, rethinkdb_port)
+    #rethinkdb = r.connect(rethinkdb_host, rethinkdb_port, db='econtext_users')
+    remodel.connection.pool.configure(host=rethinkdb_host, port=rethinkdb_port, db="econtext_users")
     
     route_options = {
         'rethinkdb': rethinkdb,

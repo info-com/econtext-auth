@@ -4,7 +4,7 @@ from pprint import pprint
 import remodel.utils
 import remodel.connection
 import rethinkdb as r
-
+from econtextauth import models
 
 
 class User:
@@ -28,8 +28,6 @@ class User:
     def __init__(self, econtext):
         self.econtext = econtext
 
-
-
     def on_post(self, req, resp):
         """
         Create a new User.
@@ -48,25 +46,10 @@ class User:
         :param resp:
         :return:
         """
-
-        #this_user=User.create()
-        #self.econtext.get('rethinkdb')
-        db=self.econtext.get('rethinkdb')
-        body= req.context['body']
-        #print body['password']
-        #print body['email']
-        try:
-            db_json={
-                "email":body['email'],
-                "password":body['password']
-            }
-        except KeyError as e:
-            print "must include necessary values"
-            resp.body = "Could not create user, missing fields."
-            return False
-        test_instert=r.table('users').insert(db_json).run(db)
-
-        resp.body=test_instert
+        body = req.context['body']
+        new_user = models.user.user.User(email=body['email'], password=body['password'])
+        new_user.save()
+        resp.body = new_user
         return True
     
     def on_get(self, req, resp, userid):
@@ -78,22 +61,8 @@ class User:
         :param userid:
         :return:
         """
-        #assert userid is id
-        db=self.econtext.get('rethinkdb')
-        userid = userid or None
-        #user=User(userid)
-        #print 'user', user, pprint(vars(user))
-        # print(r.table('accounts')
-        #         .order_by(r.desc('id')).run(conn))
-        #return_body=r.table('accounts').get("35528c0a-4fd6-4b16-8b0e-7ac41a9ef398").run(conn)
-
-        test_body=r.table('users').get(userid).run(db)
-
-        print userid
-        print test_body
-        #pprint(vars(db))
-
-        resp.body=test_body
+        new_user = models.user.user.User.get(userid)
+        resp.body = new_user
         return True
     
     def on_put(self, req, resp, userid):
