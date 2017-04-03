@@ -20,7 +20,7 @@ class User:
         'users/user',
         'users/user/{userid}'
     ]
-    remodel.connection.pool.configure(db="test")
+    
     @staticmethod
     def get_route_constructor(*args, **kwargs):
         return User(*args)

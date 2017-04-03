@@ -51,6 +51,5 @@ class Authenticate:
         :param resp:
         :return:
         """
-        rethinkdb = self.options.get('rethinkdb')
         resp.body = "OK"
-        return true
+        return True
