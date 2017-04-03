@@ -11,7 +11,8 @@ from econtextauth.engine.routes import groups
 route_classes = [
     ping.Ping,
     users.user.User,
+    #users.apikey.Apikey,
     users.search.Search,
-    #applications.Appliation,
     groups.group.Group,
+    #applications.application.Application
 ]
