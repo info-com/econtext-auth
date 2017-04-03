@@ -3,18 +3,11 @@ Create our various tables, indexes, etc
 """
 
 from econtextauth.models import *
-import remodel
 import rethinkdb as r
+import remodel
 
 
-remodel.helpers.create_tables()
-remodel.helpers.create_indexes()
-
-
-conn = r.connect(db='econtext_users')
-
-
-def create_tables():
+def create_tables(conn):
     created_tables = r.table_list().run(conn)
     for model_cls in remodel.registry.model_registry.all().values():
         if model_cls._table not in created_tables:
@@ -24,7 +17,7 @@ def create_tables():
                                    model_cls._table, model_cls.__name__))
 
 
-def create_indexes():
+def create_indexes(conn):
     for model, index_set in remodel.registry.index_registry.all().items():
         model_cls = remodel.registry.model_registry.get(model)
         created_indexes = r.table(model_cls._table).index_list().run(conn)
@@ -36,5 +29,3 @@ def create_indexes():
                                        index, model_cls._table))
         r.table(model_cls._table).index_wait().run(conn)
 
-create_tables()
-create_indexes()

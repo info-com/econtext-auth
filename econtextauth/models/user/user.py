@@ -27,7 +27,13 @@ class User(Model):
         u"""
         Returns this object as a JSON object
         """
-        return self.fields.as_dict()
+        return {
+            'id': self.fields.id,
+            'name': self.fields.name,
+            'email': self.fields.email,
+            'customData': self.fields.customData,
+            'api_keys': list(self.fields.api_keys.all())
+        }
 
     def __init__(self, name=None, password=None, email=None, status=None, customData=None, createdAt=None, modifiedAt=None, passwordModifiedAt=None, *args, **kwargs ):
         createdAt = createdAt or r.now()

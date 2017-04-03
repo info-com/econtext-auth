@@ -4,6 +4,7 @@ import falcon
 import gunicorn.app.base
 import argparse
 from os.path import abspath
+from econtextauth.engine import bin
 from econtextauth.engine import routes
 from econtextauth.engine.middleware.econtext.econtext import EcontextMiddleware
 from econtextauth.engine.middleware.econtext import exception_handler, error_serializer
@@ -98,11 +99,9 @@ def setup_app(config):
     rethinkdb_host = econtext_config.get('rethinkdb_host')
     rethinkdb_port = econtext_config.get('rethinkdb_port', 28015)
     log.debug("Loading RethinkDB from {}:{}".format(rethinkdb_host, rethinkdb_port))
-    #rethinkdb = r.connect(rethinkdb_host, rethinkdb_port, db='econtext_users')
     remodel.connection.pool.configure(host=rethinkdb_host, port=rethinkdb_port, db="econtext_users")
     
     route_options = {
-        'rethinkdb': rethinkdb,
     }
     
     for route_class in routes.route_classes:
@@ -110,6 +109,10 @@ def setup_app(config):
             for route in route_class.routes:
                 log.info("Loading route: /api/{}".format(route))
                 app.add_route("/api/{}".format(route), route_class.get_route_constructor(route_options))
+    
+    #with r.connect(rethinkdb_host, rethinkdb_port, db='econtext_users') as conn:
+    #    bin.rethink.create_tables(conn)
+    #    bin.rethink.create_indexes(conn)
 
 
 def main():
