@@ -7,6 +7,7 @@ from econtextauth.engine.routes import ping
 from econtextauth.engine.routes import users
 from econtextauth.engine.routes import applications
 from econtextauth.engine.routes import groups
+from econtextauth.engine.routes import authenticate
 
 route_classes = [
     ping.Ping,
@@ -14,5 +15,6 @@ route_classes = [
     #users.apikey.Apikey,
     users.search.Search,
     groups.group.Group,
+    authenticate.Authenticate
     #applications.application.Application
 ]
