@@ -25,7 +25,7 @@ class Application(Model):
         """
         return self.fields.as_dict()
 
-    def __init__(self, id=None, name=None, description=None, status=None, createdAt=None, modifiedAt=None, customData=None, *args, **kwargs):
+    def __init__(self,name=None, description=None, status=None, createdAt=None, modifiedAt=None, customData=None, *args, **kwargs):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
-        super(Application, self).__init__(id=id, name=name, description=description, status=status, createdAt=createdAt, modifiedAt=modifiedAt, customData=customData)
+        super(Application, self).__init__(name=name, description=description, status=status, createdAt=createdAt, modifiedAt=modifiedAt, customData=customData)
