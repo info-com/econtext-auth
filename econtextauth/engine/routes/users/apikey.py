@@ -1,5 +1,9 @@
 import logging
-
+from econtextauth import models
+from pprint import pprint
+import remodel.utils
+import remodel.connection
+import rethinkdb as r
 log = logging.getLogger('econtext')
 
 
@@ -22,16 +26,19 @@ class Apikey:
     def __init__(self, econtext):
         self.econtext = econtext
 
-    def on_get(self, req, resp, search):
+    def on_get(self, req, resp, apikey):
         """
-        Retrieve a list of users that match the provided search term
-
-        :type search: str
+        Retrieve an apikey
+        :type apikey: str
 
         :param req:
         :param resp:
-        :param search: A string to search for
+        :param apikey: A string to search for apikey
         :return:
         """
-        resp.body = "ok"
+
+        search_key = models.user.apikey.ApiKey.get(apikey)
+        #pprint(vars(new_user))
+        resp.body = search_key
         return True
+

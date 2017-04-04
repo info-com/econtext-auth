@@ -1,4 +1,4 @@
-import rethinkdb as rethinkdb
+
 from gevent import monkey; monkey.patch_all()
 import falcon
 import gunicorn.app.base

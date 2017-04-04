@@ -84,7 +84,7 @@ class User(Model):
         """
         Check to see if a record exists already with this email address
         :param email:
-        :return:
+        :return boolean:
         """
         if User.get(email=email):
             return True
