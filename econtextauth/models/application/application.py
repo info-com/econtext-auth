@@ -16,7 +16,7 @@ import rethinkdb as r
 
 
 class Application(Model):
-    has_many = ("User",)
+    has_and_belongs_to_many = ("User", "Group")
 
     @property
     def json(self):

@@ -16,10 +16,11 @@ passwordModifiedAt (2017-02-10T21:32:18.042Z)
 """
 import rethinkdb as r
 from remodel.models import Model
+from argon2 import PasswordHasher
 
 
 class User(Model):
-    belongs_to = ("Application", "Group")
+    has_and_belongs_to_many = ("Application", "Group")
     has_many = ("ApiKey",)
 
     @property
@@ -28,15 +29,25 @@ class User(Model):
         Returns this object as a JSON object
         """
         return {
+            # base user data
             'id': self.fields.id,
             'name': self.fields.name,
             'email': self.fields.email,
             'customData': self.fields.customData,
-            'api_keys': list(self.fields.api_keys.all())
+            
+            # Extra relations
+            'api_keys': list(self.fields.api_keys.all()),
+            'groups': list(self.fields.groups.all()),
+            'applications': list(self.fields.applications.all())
         }
 
-    def __init__(self, name=None, password=None, email=None, status=None, customData=None, createdAt=None, modifiedAt=None, passwordModifiedAt=None, *args, **kwargs ):
+    def __init__(self, email=None, password=None, name=None, customData=None, status=None, createdAt=None, modifiedAt=None, passwordModifiedAt=None, *args, **kwargs ):
+        ph = PasswordHasher()
+        if len(password.strip()) < 6:
+            raise Exception("Password must be at least 7 characters long")
+        password = ph.hash(password.strip())
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
+        passwordModifiedAt = passwordModifiedAt or r.now()
         super(User, self).__init__(name=name, password=password, email=email, status=status, customData=customData, createdAt=createdAt, modifiedAt=modifiedAt, passwordModifiedAt=passwordModifiedAt)
 

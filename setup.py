@@ -19,7 +19,9 @@ setup(
         'falcon',
         'gevent',
         'gunicorn',
-        'rethinkdb', 'remodel'
+        'rethinkdb',
+        'remodel',
+        'argon2_cffi'
     ],
     
     entry_points={
