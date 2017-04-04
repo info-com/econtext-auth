@@ -49,8 +49,6 @@ class User:
         body = req.context['body']
         new_user = models.user.user.User.create_new(body['email'], body['password'])
         new_user.save()
-        print new_user
-        pprint(vars(new_user))
         resp.body = new_user
         return True
     

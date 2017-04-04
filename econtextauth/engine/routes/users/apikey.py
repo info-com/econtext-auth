@@ -1,9 +1,5 @@
 import logging
 from econtextauth import models
-from pprint import pprint
-import remodel.utils
-import remodel.connection
-import rethinkdb as r
 log = logging.getLogger('econtext')
 
 
@@ -14,9 +10,7 @@ class Apikey:
     GET - Search for an apikey
     """
     routes = [
-        'users/apikey',
-        'users/apikey/{apikey}'
-
+        'users/user/{userid}/apikey'
     ]
 
     @staticmethod
@@ -38,7 +32,25 @@ class Apikey:
         """
 
         search_key = models.user.apikey.ApiKey.get(apikey)
-        #pprint(vars(new_user))
         resp.body = search_key
         return True
 
+
+
+    def on_post(self,req,resp,userid):
+        """
+        Create an APIKEY
+        :param req:
+        :param resp:
+        
+        """
+
+        search_user=models.user.user.User.get(userid)
+        body = req.context['body']
+        new_apikey=models.user.apikey.ApiKey.create_new(body.get('name'),body.get('description'))
+        search_user["api_keys"].add(new_apikey)
+        #print search_user["api_keys"].count()
+        #print list(search_user["api_keys"].all())
+
+        resp.body=new_apikey
+        return True

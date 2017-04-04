@@ -12,7 +12,7 @@ from econtextauth.engine.routes import authenticate
 route_classes = [
     ping.Ping,
     users.user.User,
-    #users.apikey.Apikey,
+    users.apikey.Apikey,
     users.search.Search,
     groups.group.Group,
     authenticate.Authenticate
