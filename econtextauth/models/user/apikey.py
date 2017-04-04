@@ -60,7 +60,7 @@ class ApiKey(Model):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
 
-        a = ApiKey(name=name, secret=secret, secretID=secretID, description=description, status=status, createdAt=createdAt,
+        a = ApiKey(name=name, secret=password, secretID=secretID, description=description, status=status, createdAt=createdAt,
                  modifiedAt=modifiedAt)
         return a
 
