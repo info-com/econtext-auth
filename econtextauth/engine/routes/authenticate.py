@@ -63,13 +63,21 @@ class Authenticate:
         if body['type'] == 'username':
             u = User.get(email=body['credential']['email'])
             if u:
-                #CHECK APPLICATIONS HERE!
-                print list(u.fields.applications.all())
+
+                application_list=list(u.fields.applications.all())
+                app_check=False
+                for apps in application_list:
+                    print apps.fields.id
+                    if body['application']==apps.fields.id:
+                        app_check=True
+                if not app_check:
+                    resp.body = "FAIL"
+                    return False
 
                 ph = PasswordHasher()
-                passcheck=ph.verify(u.fields.password, body['credential']['password'])
-                if passcheck:
-                    resp.body = "OK"
+                #passcheck=ph.verify(u.fields.password, body['credential']['password'])
+                if ph.verify(u.fields.password, body['credential']['password']):
+                    resp.body = "SUCESS"
                     return True
 
         resp.body = "FAIL"
