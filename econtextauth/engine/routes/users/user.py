@@ -89,20 +89,16 @@ class User:
         :param userid:
         :return:
         """
-        db=self.econtext.get('rethinkdb')
+
         userid = userid or None
+        body=req.context['body']
+        update_user=models.user.user.User.get(userid)
+
+        #iterate through body, key ->value
+        #update user[key]=value
 
 
-        #check user exists
-        #check fields to populate
-        #update fields
-        #check_user=r.table('users').get(userid).replace(req.context['body']).run(conn)
-
-        #VALIDATE CONTEXT['BODY'] BEFORE UPDATING....
-        check_user = r.table('users').get(userid).update(req.context['body']).run(db)
-
-
-        resp.body = check_user
+        resp.body = 'ok'
         return True
 
     def on_delete(self, req, resp, userid):
@@ -117,13 +113,11 @@ class User:
         :return:
         """
 
-        #This will not delete DB entry just change status to Deleted.
-        # check user exists
-        # check status?
-        # change status to deleted
-
-        db = self.econtext.get('rethinkdb')
         userid = userid or None
-        check_user = r.table('users').get(userid).update({"status":"deleted"}).run(db)
-        resp.body = check_user
+        delete_user=models.user.user.User.get(userid)
+        delete_user["status"]="DELETED"
+        delete_user.save()
+
+
+        resp.body = delete_user
         return True

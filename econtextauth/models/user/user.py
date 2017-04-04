@@ -90,3 +90,7 @@ class User(Model):
         if User.get(email=email):
             return True
         return False
+
+
+    # @staticmethod
+    # def delete_status():
