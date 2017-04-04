@@ -53,6 +53,7 @@ class Group(Model):
 
         g = Group(name=name,customData=customData, description=description, status=status, createdAt=createdAt,
                  modifiedAt=modifiedAt)
+        g.save()
         return g
 
 
