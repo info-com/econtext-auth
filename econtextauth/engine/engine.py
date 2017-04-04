@@ -9,7 +9,7 @@ from econtextauth.engine import routes
 from econtextauth.engine.middleware.econtext.econtext import EcontextMiddleware
 from econtextauth.engine.middleware.econtext import exception_handler, error_serializer
 from multiprocessing import cpu_count
-
+from econtextauth.engine.middleware.econtext.talon_auth import Authenticator
 import remodel.connection
 import rethinkdb as r
 
@@ -22,7 +22,8 @@ import logging
 log = logging.getLogger('econtext')
 
 # Here's our app!
-app = falcon.API(middleware=[EcontextMiddleware()])
+#add talon
+app = falcon.API(middleware=[EcontextMiddleware(),Authenticator()])
 app.add_error_handler(Exception, exception_handler)
 app.set_error_serializer(error_serializer)
 

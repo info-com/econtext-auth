@@ -65,8 +65,8 @@ class Application:
         :param applicationid:
         :return:
         """
-        new_user = models.application.application.Application.get(applicationid)
-        resp.body = new_user
+        new_application = models.application.application.Application.get(applicationid)
+        resp.body = new_application
         return True
 
     # def on_put(self, req, resp, userid):
