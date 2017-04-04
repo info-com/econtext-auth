@@ -15,6 +15,6 @@ route_classes = [
     users.apikey.Apikey,
     users.search.Search,
     groups.group.Group,
-    authenticate.Authenticate
-    #applications.application.Application
+    authenticate.Authenticate,
+    applications.application.Application
 ]

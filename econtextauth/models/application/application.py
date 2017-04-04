@@ -51,8 +51,8 @@ class Application(Model):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
 
-        a = Application(name=name,customData=customData, description=description, status=status, createdAt=createdAt,
+        b = Application(name=name,customData=customData, description=description, status=status, createdAt=createdAt,
                  modifiedAt=modifiedAt)
-        a.save()
-        return a
+        b.save()
+        return b
 

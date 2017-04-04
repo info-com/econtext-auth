@@ -7,7 +7,7 @@ import rethinkdb as r
 from econtextauth import models
 
 
-class Applications:
+class Application:
     """
        Application
 
@@ -25,7 +25,7 @@ class Applications:
 
     @staticmethod
     def get_route_constructor(*args, **kwargs):
-        return Applications(*args)
+        return Application(*args)
 
     def __init__(self, econtext):
         self.econtext = econtext
@@ -51,8 +51,8 @@ class Applications:
         :return:
         """
         body = req.context['body']
-        new_application = models.application.application.Application(name=body['name'], description=body['description'])
-        new_application.save()
+        new_application = models.application.application.Application.create_new(name=body.get('name'), description=body.get('description'))
+
         resp.body = new_application
         return True
 

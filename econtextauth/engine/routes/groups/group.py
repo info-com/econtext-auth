@@ -51,8 +51,8 @@ class Group:
         :return:
         """
         body = req.context['body']
-        new_group = models.group.group.Group(name=body.get('name'), description=body.get('description'))
-        new_group.save()
+        new_group = models.group.group.Group.create_new(name=body.get('name'), description=body.get('description'))
+
         resp.body = new_group
         return True
 
