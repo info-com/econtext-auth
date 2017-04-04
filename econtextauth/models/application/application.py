@@ -47,7 +47,9 @@ class Application(Model):
         :param kwargs:
         :return:
         """
-
+        if Application.already_exists(name):
+            raise Exception("An application with that name already exists")
+        
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
 
@@ -55,4 +57,16 @@ class Application(Model):
                  modifiedAt=modifiedAt)
         b.save()
         return b
+
+
+    @staticmethod
+    def already_exists(applciation_name):
+        """
+        Check to see if a record exists already with this applicaiton name
+        :param applciation_name:
+        :return boolean:
+        """
+        if Application.get(name=applciation_name):
+            return True
+        return False
 
