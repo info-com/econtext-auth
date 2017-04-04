@@ -96,7 +96,7 @@ class User(Model):
         if User.get(email=email):
             return True
         return False
-
+    @staticmethod
     def valid_email(email):
         return validate_email(email)
 
