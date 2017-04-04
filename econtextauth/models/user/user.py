@@ -15,10 +15,14 @@ passwordModifiedAt (2017-02-10T21:32:18.042Z)
 
 """
 import rethinkdb as r
-
 from remodel.models import Model, after_init
 from argon2 import PasswordHasher
 import logging
+from validate_email import validate_email
+
+
+
+
 log = logging.getLogger('econtext')
 
 class User(Model):
@@ -69,6 +73,8 @@ class User(Model):
         """
         if User.already_exists(email):
             raise Exception("A user with that email address already exists")
+        if not validate_email(email):
+            raise Exception("Enter a valid email address")
         ph = PasswordHasher()
         if len(password.strip()) < 6:
             raise Exception("Password must be at least 7 characters long")
@@ -90,6 +96,9 @@ class User(Model):
         if User.get(email=email):
             return True
         return False
+
+    def valid_email(email):
+        return validate_email(email)
 
 
     # @staticmethod
