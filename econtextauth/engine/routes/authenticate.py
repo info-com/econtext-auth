@@ -1,3 +1,5 @@
+from argon2 import PasswordHasher
+from econtextauth.models.user.user import User
 import logging
 log = logging.getLogger('econtext')
 
@@ -35,8 +37,6 @@ class Authenticate:
         
         * Passwords are hashed in our DB, so the input should be hashed
           appropriately as well to match it
-        * API passwords are encrypted in our DB, so the input should be
-          encrypted appropriately as well to match it
         
         If a user is not a member of the requested application, their
         authentication request should fail, even if their credentials
@@ -47,9 +47,21 @@ class Authenticate:
         could be found" or "Authentication failed because the provided
         password did not match"
         
+        General method here:
+        * Search for the user based on the provided username
+        * If there are no matching users -> Fail
+        * Check the provided password against the hashed password (use
+          ph.verify(user.password, supplied_credential)
+        * If there is no match -> Fail
+        * Success
+        
         :param req:
         :param resp:
         :return:
         """
+        body = req.context['body']
+        u = User.get(email=body['credential']['email'])
+        ph = PasswordHasher()
+        ph.verify(u.fields.password, body['credential']['password'])
         resp.body = "OK"
         return True

@@ -15,9 +15,11 @@ passwordModifiedAt (2017-02-10T21:32:18.042Z)
 
 """
 import rethinkdb as r
-from remodel.models import Model
-from argon2 import PasswordHasher
 
+from remodel.models import Model, after_init
+from argon2 import PasswordHasher
+import logging
+log = logging.getLogger('econtext')
 
 class User(Model):
     has_and_belongs_to_many = ("Application", "Group")
@@ -41,7 +43,32 @@ class User(Model):
             'applications': list(self.fields.applications.all())
         }
 
-    def __init__(self, email=None, password=None, name=None, customData=None, status=None, createdAt=None, modifiedAt=None, passwordModifiedAt=None, *args, **kwargs ):
+    def __init__(self, *args, **kwargs ):
+        super(User, self).__init__(**kwargs)
+    
+    @staticmethod
+    def create_new(email, password, name=None, customData=None, status=None, createdAt=None, modifiedAt=None, passwordModifiedAt=None, *args, **kwargs):
+        """
+        Create a new User object
+        
+        @todo -- All new users need to be associated with an Application
+        @todo -- We can create password policies associated with an Application and enforce those here
+        @todo -- Check that an email address is actually an email address (https://pypi.python.org/pypi/validate_email)
+        
+        :param email:
+        :param password:
+        :param name:
+        :param customData:
+        :param status:
+        :param createdAt:
+        :param modifiedAt:
+        :param passwordModifiedAt:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if User.already_exists(email):
+            raise Exception("A user with that email address already exists")
         ph = PasswordHasher()
         if len(password.strip()) < 6:
             raise Exception("Password must be at least 7 characters long")
@@ -49,5 +76,16 @@ class User(Model):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
         passwordModifiedAt = passwordModifiedAt or r.now()
-        super(User, self).__init__(name=name, password=password, email=email, status=status, customData=customData, createdAt=createdAt, modifiedAt=modifiedAt, passwordModifiedAt=passwordModifiedAt)
-
+        u = User(email=email, password=password, name=name, customData=customData, status=status, createdAt=createdAt, modifiedAt=modifiedAt, passwordModifiedAt=passwordModifiedAt)
+        return u
+    
+    @staticmethod
+    def already_exists(email):
+        """
+        Check to see if a record exists already with this email address
+        :param email:
+        :return:
+        """
+        if User.get(email=email):
+            return True
+        return False

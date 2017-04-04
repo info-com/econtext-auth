@@ -47,7 +47,7 @@ class User:
         :return:
         """
         body = req.context['body']
-        new_user = models.user.user.User(email=body['email'], password=body['password'])
+        new_user = models.user.user.User.create_new(body['email'], body['password'])
         new_user.save()
         resp.body = new_user
         return True
