@@ -46,6 +46,7 @@ class Apikey:
         """
 
         search_user=models.user.user.User.get(userid)
+        #IF NONE RETURN FALSE??
         body = req.context['body']
         new_apikey=models.user.apikey.ApiKey.create_new(body.get('name'),body.get('description'))
         search_user["api_keys"].add(new_apikey)
