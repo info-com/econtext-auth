@@ -31,3 +31,28 @@ class Group(Model):
         status = status or 'ENABLED'
         super(Group, self).__init__( name=name, description=description, status=status, createdAt=createdAt, modifiedAt=modifiedAt, customData=customData)
 
+    @staticmethod
+    def create_new(name, description=None, customData=None, status=None, createdAt=None, modifiedAt=None, *args, **kwargs):
+        """
+        Create a new Group object
+
+
+        :param name:
+        :param customData:
+        :param description:
+        :param status:
+        :param createdAt:
+        :param modifiedAt:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+
+        createdAt = createdAt or r.now()
+        modifiedAt = modifiedAt or r.now()
+
+        g = Group(name=name,customData=customData, description=description, status=status, createdAt=createdAt,
+                 modifiedAt=modifiedAt)
+        return g
+
+
