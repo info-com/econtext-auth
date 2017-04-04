@@ -51,13 +51,12 @@ class User:
         print application_id
         user_application=models.application.application.Application.get(application_id)
 
-        print user_application
         new_user = models.user.user.User.create_new(body['email'], body['password'])
-
+        new_user["applications"].add(user_application)
         user_application["users"].add(new_user)
         # print user_application["users"].count()
         # print list(user_application["users"].all())
-
+        # print new_user["applications"].count()
 
         resp.body = new_user
         return True
