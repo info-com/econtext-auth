@@ -60,8 +60,17 @@ class Authenticate:
         :return:
         """
         body = req.context['body']
-        u = User.get(email=body['credential']['email'])
-        ph = PasswordHasher()
-        ph.verify(u.fields.password, body['credential']['password'])
-        resp.body = "OK"
-        return True
+        if body['type'] == 'username':
+            u = User.get(email=body['credential']['email'])
+            if u:
+                #CHECK APPLICATIONS HERE!
+                print list(u.fields.applications.all())
+
+                ph = PasswordHasher()
+                passcheck=ph.verify(u.fields.password, body['credential']['password'])
+                if passcheck:
+                    resp.body = "OK"
+                    return True
+
+        resp.body = "FAIL"
+        return False
