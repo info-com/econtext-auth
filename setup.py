@@ -17,12 +17,12 @@ setup(
     install_requires=[
         'requests',
         'falcon',
-        'talons',
         'gevent',
         'gunicorn',
         'rethinkdb',
         'remodel',
-        'argon2_cffi'
+        'argon2_cffi',
+        'validate_email'
     ],
     
     entry_points={
