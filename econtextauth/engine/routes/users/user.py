@@ -49,12 +49,16 @@ class User:
         """
         body = req.context['body']
         application_id = body.get('applicationID')
-        print application_id
-        user_application = models.application.application.Application.get(application_id)
+        log.debug(application_id)
 
+        user_application = models.application.application.Application.get(application_id)
         new_user = models.user.user.User.create_new(body['email'], body['password'])
-        new_user["applications"].add(user_application)
-        user_application["users"].add(new_user)
+        log.debug(user_application)
+
+        #fix this...
+        if application_id:
+            new_user["applications"].add(user_application)
+            user_application["users"].add(new_user)
         # print user_application["users"].count()
         # print list(user_application["users"].all())
         # print new_user["applications"].count()
@@ -94,12 +98,18 @@ class User:
         userid = userid or None
         body = req.context['body']
         update_user = models.user.user.User.get(userid)
+        for k in body:
+            update_user[k]=body[k]
+            log.debug(update_user[k], body[k])
 
+        update_user.save()
+        log.debug(update_user)
+        #test_update_user =models.user.user.User.get(userid).update({"name":body['name']}).run()
         # iterate through body, key ->value
         # update user[key]=value
 
 
-        resp.body = 'ok'
+        resp.body = update_user
         return True
 
     def on_delete(self, req, resp, userid):
