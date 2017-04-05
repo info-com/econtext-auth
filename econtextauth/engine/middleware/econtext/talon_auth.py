@@ -30,6 +30,7 @@ admin_id='f43ddadc-1493-4fc1-8d30-be1dfbc25dbc'
 
 class Authenticator(interfaces.Authenticates):
 
+
     """
     Authenticates the supplied Identity by querying an Apache htpasswd file.
     """

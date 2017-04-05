@@ -23,7 +23,8 @@ log = logging.getLogger('econtext')
 
 # Here's our app!
 #add talon
-app = falcon.API(middleware=[EcontextMiddleware(),Authenticator()])
+#app = falcon.API(Authenticator(),middleware=[EcontextMiddleware()])
+app = falcon.API(middleware=[EcontextMiddleware()])
 app.add_error_handler(Exception, exception_handler)
 app.set_error_serializer(error_serializer)
 
