@@ -1,10 +1,7 @@
 import logging
-
 log = logging.getLogger('econtext')
-from pprint import pprint
 import remodel.utils
 import remodel.connection
-import rethinkdb as r
 from econtextauth import models
 
 

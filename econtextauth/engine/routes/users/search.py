@@ -1,7 +1,6 @@
 import logging
-
 log = logging.getLogger('econtext')
-
+from econtextauth import models
 
 class Search:
     """
@@ -31,5 +30,13 @@ class Search:
         :param search: A string to search for
         :return:
         """
-        resp.body = "ok"
+
+        """
+        regex? partial match? which fields to compare?
+        get whole table, search fields
+        
+        """
+        user_search=models.user.user.User.get(name=search)
+
+        resp.body = user_search
         return True

@@ -1,11 +1,8 @@
 import logging
-
-log = logging.getLogger('econtext')
-from pprint import pprint
 import remodel.utils
 import remodel.connection
-import rethinkdb as r
 from econtextauth import models
+log = logging.getLogger('econtext')
 
 
 class Group:
@@ -63,6 +60,6 @@ class Group:
         :param groupid:
         :return:
         """
-        new_user = models.group.group.Group.get(groupid)
-        resp.body = new_user
+        get_group = models.group.group.Group.get(groupid)
+        resp.body = get_group
         return True
