@@ -19,7 +19,6 @@ class Authenticator(object):
             raise Exception("Expected an app_id to authenticate to")
 
     def process_request(self, req, resp):
-        token = req.get_header('Authorization')
         username = req.get_header('Username')
         password=req.get_header('Password')
         print 'username: ', username , 'password: ', password
@@ -28,7 +27,7 @@ class Authenticator(object):
 
 
         app_check = False
-        challenges = ['Token type="Fernet"']
+
         this_user=User.get(email=username)
         if this_user:
             ph = PasswordHasher()
@@ -40,20 +39,16 @@ class Authenticator(object):
                     if apps.fields.id == self.app_id:
                         app_check=True
 
+        if not app_check:
+            description = ('Please provide an auth token '
+                           'as part of the request.')
 
+            raise falcon.HTTPUnauthorized('Auth token required',
+                                          description,
+                                          'Token type="Fernet"',
+                                          href='http://docs.example.com/auth')
 
-
-
-        print app_check
-        #     if not app_check:
-        #         description = ('Please provide an auth token '
-        #                        'as part of the request.')
-        #         raise falcon.HTTPUnauthorized('Auth token required',
-        #                                       description,
-        #                                       challenges,
-        #                                       href='http://docs.example.com/auth')
-        #
-        # return True
+        return True
 
 
 
