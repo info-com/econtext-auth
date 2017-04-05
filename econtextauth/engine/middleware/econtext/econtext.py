@@ -15,6 +15,7 @@ from time import time
 
 log = logging.getLogger('econtext')
 
+
 class eContextJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         try:
@@ -32,6 +33,7 @@ class eContextJsonEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
         except Exception:
             pass
+
 
 class EcontextMiddleware(object):
     def process_request(self, req, resp):
@@ -79,14 +81,14 @@ class EcontextMiddleware(object):
         """
         if resource is None:
             return
-        
+
         result = resp.body
-        
+
         elapsed = time() - resource.start_time
         if hasattr(result, 'json'):
             result = result.json
         econtext_result = {u"result": result, u"elapsed": elapsed}
-        
+
         ex = None
         if isinstance(result, dict):
             # This error would be set by the error_serializer
@@ -99,9 +101,9 @@ class EcontextMiddleware(object):
             econtext_result['error'] = ex['title']
             econtext_result['errorcode'] = resp.status.split(" ")[0]
             econtext_result['traceback'] = ex['description']
-            #if isinstance(ex, falcon.HTTPError):
+            # if isinstance(ex, falcon.HTTPError):
             #    resp.status = falcon.HTTP_BAD_REQUEST
             #    econtext_result['error'] = "{}: {}".format(ex.title, ex.description)
-        
+
         resp.body = json.dumps({"econtext": econtext_result}, cls=eContextJsonEncoder)
         log.info("{} {} {}".format(req.method, resp.status, req.path))

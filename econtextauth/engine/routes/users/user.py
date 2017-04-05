@@ -4,6 +4,7 @@ import remodel.connection
 import rethinkdb as r
 from econtextauth import models
 import logging
+
 log = logging.getLogger('econtext')
 
 
@@ -20,11 +21,11 @@ class User:
         'users/user',
         'users/user/{userid}'
     ]
-    
+
     @staticmethod
     def get_route_constructor(*args, **kwargs):
         return User(*args)
-    
+
     def __init__(self, econtext):
         self.econtext = econtext
 
@@ -49,7 +50,7 @@ class User:
         body = req.context['body']
         application_id = body.get('applicationID')
         print application_id
-        user_application=models.application.application.Application.get(application_id)
+        user_application = models.application.application.Application.get(application_id)
 
         new_user = models.user.user.User.create_new(body['email'], body['password'])
         new_user["applications"].add(user_application)
@@ -60,7 +61,7 @@ class User:
 
         resp.body = new_user
         return True
-    
+
     def on_get(self, req, resp, userid):
         """
         Retrieve a user specified by id
@@ -71,10 +72,10 @@ class User:
         :return:
         """
         new_user = models.user.user.User.get(userid)
-        #pprint(vars(new_user))
+        # pprint(vars(new_user))
         resp.body = new_user
         return True
-    
+
     def on_put(self, req, resp, userid):
         """
         Update a user specified by the userid
@@ -91,11 +92,11 @@ class User:
         """
 
         userid = userid or None
-        body=req.context['body']
-        update_user=models.user.user.User.get(userid)
+        body = req.context['body']
+        update_user = models.user.user.User.get(userid)
 
-        #iterate through body, key ->value
-        #update user[key]=value
+        # iterate through body, key ->value
+        # update user[key]=value
 
 
         resp.body = 'ok'
@@ -114,10 +115,9 @@ class User:
         """
 
         userid = userid or None
-        delete_user=models.user.user.User.get(userid)
-        delete_user["status"]="DELETED"
+        delete_user = models.user.user.User.get(userid)
+        delete_user["status"] = "DELETED"
         delete_user.save()
-
 
         resp.body = delete_user
         return True

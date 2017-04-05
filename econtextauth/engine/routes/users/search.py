@@ -1,4 +1,5 @@
 import logging
+
 log = logging.getLogger('econtext')
 
 
@@ -11,14 +12,14 @@ class Search:
     routes = [
         'users/search/{search}',
     ]
-    
+
     @staticmethod
     def get_route_constructor(*args, **kwargs):
         return Search(*args)
-    
+
     def __init__(self, econtext):
         self.econtext = econtext
-    
+
     def on_get(self, req, resp, search):
         """
         Retrieve a list of users that match the provided search term

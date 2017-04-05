@@ -1,5 +1,6 @@
 import logging
 from econtextauth import models
+
 log = logging.getLogger('econtext')
 
 
@@ -35,9 +36,7 @@ class Apikey:
         resp.body = search_key
         return True
 
-
-
-    def on_post(self,req,resp,userid):
+    def on_post(self, req, resp, userid):
         """
         Create an APIKEY
         :param req:
@@ -45,13 +44,13 @@ class Apikey:
         
         """
 
-        search_user=models.user.user.User.get(userid)
-        #IF NONE RETURN FALSE??
+        search_user = models.user.user.User.get(userid)
+        # IF NONE RETURN FALSE??
         body = req.context['body']
-        new_apikey=models.user.apikey.ApiKey.create_new(body.get('name'),body.get('description'))
+        new_apikey = models.user.apikey.ApiKey.create_new(body.get('name'), body.get('description'))
         search_user["api_keys"].add(new_apikey)
-        #print search_user["api_keys"].count()
-        #print list(search_user["api_keys"].all())
+        # print search_user["api_keys"].count()
+        # print list(search_user["api_keys"].all())
 
-        resp.body=new_apikey
+        resp.body = new_apikey
         return True

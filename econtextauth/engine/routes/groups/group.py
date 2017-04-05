@@ -1,4 +1,5 @@
 import logging
+
 log = logging.getLogger('econtext')
 from pprint import pprint
 import remodel.utils
@@ -29,9 +30,6 @@ class Group:
 
     def __init__(self, econtext):
         self.econtext = econtext
-
-
-
 
     def on_post(self, req, resp):
         """

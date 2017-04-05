@@ -14,7 +14,7 @@ def create_tables(conn):
             result = r.table_create(model_cls._table).run(conn)
             if result['tables_created'] != 1:
                 raise RuntimeError('Could not create table %s for model %s' % (
-                                   model_cls._table, model_cls.__name__))
+                    model_cls._table, model_cls.__name__))
 
 
 def create_indexes(conn):
@@ -26,6 +26,5 @@ def create_indexes(conn):
                 result = r.table(model_cls._table).index_create(index).run(conn)
                 if result['created'] != 1:
                     raise RuntimeError('Could not create index %s for table %s' % (
-                                       index, model_cls._table))
+                        index, model_cls._table))
         r.table(model_cls._table).index_wait().run(conn)
-

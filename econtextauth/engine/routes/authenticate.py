@@ -1,6 +1,7 @@
 from argon2 import PasswordHasher
 from econtextauth.models.user.user import User
 import logging
+
 log = logging.getLogger('econtext')
 
 
@@ -13,14 +14,14 @@ class Authenticate:
     routes = [
         'authenticate'
     ]
-    
+
     @staticmethod
     def get_route_constructor(*args, **kwargs):
         return Authenticate(*args)
-    
+
     def __init__(self, options):
         self.options = options
-    
+
     def on_post(self, req, resp):
         """
         Authenticate a user given a set of credentials.  We expect to
@@ -64,18 +65,18 @@ class Authenticate:
             u = User.get(email=body['credential']['email'])
             if u:
 
-                application_list=list(u.fields.applications.all())
-                app_check=False
+                application_list = list(u.fields.applications.all())
+                app_check = False
                 for apps in application_list:
                     print apps.fields.id
-                    if body['application']==apps.fields.id:
-                        app_check=True
+                    if body['application'] == apps.fields.id:
+                        app_check = True
                 if not app_check:
                     resp.body = "FAIL"
                     return False
 
                 ph = PasswordHasher()
-                #passcheck=ph.verify(u.fields.password, body['credential']['password'])
+                # passcheck=ph.verify(u.fields.password, body['credential']['password'])
                 if ph.verify(u.fields.password, body['credential']['password']):
                     resp.body = "SUCESS"
                     return True

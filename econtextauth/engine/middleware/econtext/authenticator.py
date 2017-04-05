@@ -6,15 +6,12 @@ from argon2 import PasswordHasher
 import falcon
 from falcon import api_helpers
 
-#appid vs fields.id
+# appid vs fields.id
 log = logging.getLogger('econtext')
 
 
-
-
 class Authenticator(object):
-
-    def __init__(self,conf):
+    def __init__(self, conf):
         self.app_id = conf.get('app_id')
         if self.app_id is None:
             raise Exception("Expected an app_id to authenticate to")
@@ -22,10 +19,8 @@ class Authenticator(object):
     def process_request(self, req, resp):
         username = req.get_header('Username')
         password = req.get_header('Password')
-        log.debug('username: ', username , 'password: ', password)
+        log.debug('username: ', username, 'password: ', password)
         log.debug(self.app_id)
-
-
 
         app_check = False
 
@@ -45,13 +40,6 @@ class Authenticator(object):
                 pass
         description = ('Username or password didnt match')
         raise falcon.HTTPUnauthorized('Username / Password mistmatch',
-                                          description,
-                                          'Token type="Fernet"',
-                                          href='http://docs.example.com/auth')
-
-
-
-
-
-
-
+                                      description,
+                                      'Token type="Fernet"',
+                                      href='http://docs.example.com/auth')
