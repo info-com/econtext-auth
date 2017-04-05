@@ -9,6 +9,7 @@ class Apikey:
     Search
 
     GET - Search for an apikey
+    POST-Adds new apikey to user
     """
     routes = [
         'users/user/{userid}/apikey'

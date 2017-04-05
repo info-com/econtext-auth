@@ -36,7 +36,7 @@ class Search:
         get whole table, search fields
         
         """
-        user_search=models.user.user.User.get(name=search)
+        user_search=models.user.user.User.getAll()
 
         resp.body = user_search
         return True
