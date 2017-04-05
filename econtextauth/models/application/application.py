@@ -25,14 +25,16 @@ class Application(Model):
         """
         return self.fields.as_dict()
 
-    def __init__(self,name=None, description=None, status=None, createdAt=None, modifiedAt=None, customData=None, *args, **kwargs):
+    def __init__(self, name=None, description=None, status=None, createdAt=None, modifiedAt=None, customData=None,
+                 *args, **kwargs):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
-        super(Application, self).__init__(name=name, description=description, status=status, createdAt=createdAt, modifiedAt=modifiedAt, customData=customData)
-
+        super(Application, self).__init__(name=name, description=description, status=status, createdAt=createdAt,
+                                          modifiedAt=modifiedAt, customData=customData)
 
     @staticmethod
-    def create_new(name, description=None, status=None, createdAt=None, modifiedAt=None, customData=None,*args, **kwargs):
+    def create_new(name, description=None, status=None, createdAt=None, modifiedAt=None, customData=None, *args,
+                   **kwargs):
         """
         Create a new Apllication object
 
@@ -53,11 +55,10 @@ class Application(Model):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
 
-        b = Application(name=name,customData=customData, description=description, status=status, createdAt=createdAt,
-                 modifiedAt=modifiedAt)
+        b = Application(name=name, customData=customData, description=description, status=status, createdAt=createdAt,
+                        modifiedAt=modifiedAt)
         b.save()
         return b
-
 
     @staticmethod
     def already_exists(applciation_name):
@@ -69,4 +70,3 @@ class Application(Model):
         if Application.get(name=applciation_name):
             return True
         return False
-

@@ -20,10 +20,8 @@ from argon2 import PasswordHasher
 import logging
 from validate_email import validate_email
 
-
-
-
 log = logging.getLogger('econtext')
+
 
 class User(Model):
     has_and_belongs_to_many = ("Application", "Group")
@@ -40,18 +38,19 @@ class User(Model):
             'name': self.fields.name,
             'email': self.fields.email,
             'customData': self.fields.customData,
-            
+
             # Extra relations
             'api_keys': list(self.fields.api_keys.all()),
             'groups': list(self.fields.groups.all()),
             'applications': list(self.fields.applications.all())
         }
 
-    def __init__(self, *args, **kwargs ):
+    def __init__(self, *args, **kwargs):
         super(User, self).__init__(**kwargs)
-    
+
     @staticmethod
-    def create_new(email, password, name=None, customData=None, status=None, createdAt=None, modifiedAt=None, passwordModifiedAt=None, *args, **kwargs):
+    def create_new(email, password, name=None, customData=None, status=None, createdAt=None, modifiedAt=None,
+                   passwordModifiedAt=None, *args, **kwargs):
         """
         Create a new User object
         
@@ -82,10 +81,11 @@ class User(Model):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
         passwordModifiedAt = passwordModifiedAt or r.now()
-        u = User(email=email, password=password, name=name, customData=customData, status=status, createdAt=createdAt, modifiedAt=modifiedAt, passwordModifiedAt=passwordModifiedAt)
+        u = User(email=email, password=password, name=name, customData=customData, status=status, createdAt=createdAt,
+                 modifiedAt=modifiedAt, passwordModifiedAt=passwordModifiedAt)
         u.save()
         return u
-    
+
     @staticmethod
     def already_exists(email):
         """
@@ -96,10 +96,11 @@ class User(Model):
         if User.get(email=email):
             return True
         return False
+
     @staticmethod
     def valid_email(email):
         return validate_email(email)
 
 
-    # @staticmethod
-    # def delete_status():
+        # @staticmethod
+        # def delete_status():

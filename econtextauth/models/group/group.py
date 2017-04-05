@@ -24,15 +24,18 @@ class Group(Model):
         Returns this object as a JSON object
         """
         return self.fields.as_dict()
-    
-    def __init__(self, name=None, description=None, status=None, createdAt=None, modifiedAt=None, customData=None, *args, **kwargs):
+
+    def __init__(self, name=None, description=None, status=None, createdAt=None, modifiedAt=None, customData=None,
+                 *args, **kwargs):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
         status = status or 'ENABLED'
-        super(Group, self).__init__( name=name, description=description, status=status, createdAt=createdAt, modifiedAt=modifiedAt, customData=customData)
+        super(Group, self).__init__(name=name, description=description, status=status, createdAt=createdAt,
+                                    modifiedAt=modifiedAt, customData=customData)
 
     @staticmethod
-    def create_new(name, description=None, customData=None, status=None, createdAt=None, modifiedAt=None, *args, **kwargs):
+    def create_new(name, description=None, customData=None, status=None, createdAt=None, modifiedAt=None, *args,
+                   **kwargs):
         """
         Create a new Group object
 
@@ -51,9 +54,7 @@ class Group(Model):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
 
-        g = Group(name=name,customData=customData, description=description, status=status, createdAt=createdAt,
-                 modifiedAt=modifiedAt)
+        g = Group(name=name, customData=customData, description=description, status=status, createdAt=createdAt,
+                  modifiedAt=modifiedAt)
         g.save()
         return g
-
-

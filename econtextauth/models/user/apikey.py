@@ -17,7 +17,7 @@ import base64
 
 
 class ApiKey(Model):
-    belongs_to = ("User", )
+    belongs_to = ("User",)
 
     @property
     def json(self):
@@ -27,15 +27,16 @@ class ApiKey(Model):
         return {
             'id': self.fields.id,
             'name': self.fields.name,
-            'description':self.fields.description
+            'description': self.fields.description
         }
 
-    def __init__(self, name=None, secret=None, status=None, description=None, createdAt=None, *args, **kwargs ):
+    def __init__(self, name=None, secret=None, status=None, description=None, createdAt=None, *args, **kwargs):
         createdAt = createdAt or r.now()
-        super(ApiKey, self).__init__(name=name, secret=secret, status=status, createdAt=createdAt, description=description)
+        super(ApiKey, self).__init__(name=name, secret=secret, status=status, createdAt=createdAt,
+                                     description=description)
 
     @staticmethod
-    def create_new(name=None,description=None, status=None, createdAt=None, modifiedAt=None, *args, **kwargs):
+    def create_new(name=None, description=None, status=None, createdAt=None, modifiedAt=None, *args, **kwargs):
         """
         Create a new ApiKey object
 
@@ -59,7 +60,6 @@ class ApiKey(Model):
         modifiedAt = modifiedAt or r.now()
         status = 'ENABLED'
         a = ApiKey(name=name, secret=secret, description=description, status=status, createdAt=createdAt,
-                 modifiedAt=modifiedAt)
+                   modifiedAt=modifiedAt)
         a.save()
         return a
-
