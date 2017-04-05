@@ -97,7 +97,7 @@ def setup_app(config):
         get_log(2)
     else:
         econtext_config = dict(config.items('econtextauth'))
-    app._middleware = falcon.api_helpers.prepare_middleware([EcontextMiddleware(),Authenticator()])
+    app._middleware = falcon.api_helpers.prepare_middleware([EcontextMiddleware(),Authenticator(econtext_config)])
 
 
     rethinkdb_host = econtext_config.get('rethinkdb_host')
