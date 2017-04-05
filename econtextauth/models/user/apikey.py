@@ -54,10 +54,10 @@ class ApiKey(Model):
         :return:
         """
 
-        secret=base64.b64encode(str(uuid.uuid1()))
+        secret = base64.b64encode(str(uuid.uuid1()))
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
-        status='ENABLED'
+        status = 'ENABLED'
         a = ApiKey(name=name, secret=secret, description=description, status=status, createdAt=createdAt,
                  modifiedAt=modifiedAt)
         a.save()

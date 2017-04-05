@@ -21,10 +21,15 @@ def exception_handler(ex, req, resp, params):
     raise eContextError(status, title, description)
 
 def error_serializer(req, resp, exception):
+
     """
     Don't actually serialize the exception - just return the dictionary that we
     want.  The response body itself should be serialized in our middleware.
-    
+
     @see econtext.engine.middleware.econtext.econtext
     """
-    resp.body = {"error":exception.to_dict()}
+    log.debug("error_serializer")
+    resp.body = {"error": exception.to_dict()}
+    log.debug(resp.body)
+    if isinstance(exception, falcon.HTTPUnauthorized):
+        resp.body = json.dumps(resp.body)

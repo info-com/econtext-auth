@@ -9,7 +9,7 @@ from econtextauth.engine import routes
 from econtextauth.engine.middleware.econtext import exception_handler, error_serializer
 from econtextauth.engine.middleware.econtext.econtext import EcontextMiddleware
 from econtextauth.engine.middleware.econtext.authenticator import Authenticator
-
+from falcon import api_helpers
 from multiprocessing import cpu_count
 import remodel.connection
 import rethinkdb as r
@@ -97,7 +97,7 @@ def setup_app(config):
         get_log(2)
     else:
         econtext_config = dict(config.items('econtextauth'))
-    app._middleware = falcon.api_helpers.prepare_middleware([EcontextMiddleware(),Authenticator(econtext_config)])
+    app._middleware = falcon.api_helpers.prepare_middleware([Authenticator(econtext_config), EcontextMiddleware()])
 
 
     rethinkdb_host = econtext_config.get('rethinkdb_host')
