@@ -2,6 +2,7 @@ import logging
 import remodel.utils
 import remodel.connection
 from econtextauth import models
+
 log = logging.getLogger('econtext')
 
 
@@ -62,4 +63,49 @@ class Group:
         """
         get_group = models.group.group.Group.get(groupid)
         resp.body = get_group
+        return True
+
+    def on_put(self, req, resp, groupId):
+        """
+        Update a group specified by the groupid
+
+        This function should receive (key, value) pairs to update.
+        Ultimately, the group should be retrieved, changed fields
+        verified, and then those changed fields should be updated in
+        the database
+
+        :param req:
+        :param resp:
+        :param groupid:
+        :return:
+        """
+        groupId = groupId or None
+        body = req.context['body']
+        update_group = models.group.group.Group.get(groupId)
+        for k in body:
+            update_group[k] = body[k]
+            log.debug(update_group[k], body[k])
+
+        update_group.save()
+        log.debug(update_group)
+        resp.body = update_group
+        return True
+
+    def on_delete(self, req, resp, groupId):
+        """
+        Remove a group specified by the groupid
+
+        The group specified should have the status changed to "deleted"
+
+        :param req:
+        :param resp:
+        :param groupid:
+        :return:
+        """
+        groupId = groupId or None
+        delete_group = models.group.group.Group(groupId)
+        delete_group['status'] = 'DELETED'
+        delete_group.save()
+
+        resp.body = delete_group
         return True

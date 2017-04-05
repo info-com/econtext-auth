@@ -104,11 +104,6 @@ class User:
 
         update_user.save()
         log.debug(update_user)
-        #test_update_user =models.user.user.User.get(userid).update({"name":body['name']}).run()
-        # iterate through body, key ->value
-        # update user[key]=value
-
-
         resp.body = update_user
         return True
 

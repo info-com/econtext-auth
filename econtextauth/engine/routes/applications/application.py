@@ -65,53 +65,53 @@ class Application:
         resp.body = new_application
         return True
 
-        # def on_put(self, req, resp, userid):
-        #     """
-        #     Update a user specified by the userid
-        #
-        #     This function should receive (key, value) pairs to update.
-        #     Ultimately, the user should be retrieved, changed fields
-        #     verified, and then those changed fields should be updated in
-        #     the database
-        #
-        #     :param req:
-        #     :param resp:
-        #     :param userid:
-        #     :return:
-        #     """
-        #     db = self.econtext.get('rethinkdb')
-        #     userid = userid or None
-        #
-        #     # check user exists
-        #     # check fields to populate
-        #     # update fields
-        #     # check_user=r.table('users').get(userid).replace(req.context['body']).run(conn)
-        #
-        #     # VALIDATE CONTEXT['BODY'] BEFORE UPDATING....
-        #     check_user = r.table('users').get(userid).update(req.context['body']).run(db)
-        #
-        #     resp.body = check_user
-        #     return True
-        #
-        # def on_delete(self, req, resp, userid):
-        #     """
-        #     Remove a user specified by the userid
-        #
-        #     The user specified should have the status changed to "deleted"
-        #
-        #     :param req:
-        #     :param resp:
-        #     :param userid:
-        #     :return:
-        #     """
-        #
-        #     # This will not delete DB entry just change status to Deleted.
-        #     # check user exists
-        #     # check status?
-        #     # change status to deleted
-        #
-        #     db = self.econtext.get('rethinkdb')
-        #     userid = userid or None
-        #     check_user = r.table('users').get(userid).update({"status": "deleted"}).run(db)
-        #     resp.body = check_user
-        #     return True
+
+    def on_put(self, req, resp, applicationId):
+        """
+        Update an application specified by the applicaitonid
+
+        This function should receive (key, value) pairs to update.
+        Ultimately, the application should be retrieved, changed fields
+        verified, and then those changed fields should be updated in
+        the database
+
+        :param req:
+        :param resp:
+        :param applicationid:
+        :return:
+        """
+
+        applicationId = applicationId or None
+        body = req.context['body']
+        update_application = models.application.application.Application.get(applicationId)
+        for k in body:
+            update_application[k] = body[k]
+            log.debug(update_application[k], body[k])
+
+        update_application.save()
+        log.debug(update_application)
+        resp.body = update_application
+        return True
+    def on_delete(self, req, resp, applicationId):
+        """
+        Remove an application specified by the applicationId
+
+        The application specified should have the status changed to "deleted"
+
+        :param req:
+        :param resp:
+        :param applicationId:
+        :return:
+        """
+
+        # This will not delete DB entry just change status to Deleted.
+        # check user exists
+        # check status?
+        # change status to deleted
+        applicationId = applicationId or None
+        delete_application = models.application.application.Application.get(applicationId)
+        delete_application["status"] = "DELETED"
+        delete_application.save()
+
+        resp.body = delete_application
+        return True
