@@ -17,6 +17,7 @@ setup(
     install_requires=[
         'requests',
         'falcon',
+        'talons',
         'gevent',
         'gunicorn',
         'rethinkdb',
