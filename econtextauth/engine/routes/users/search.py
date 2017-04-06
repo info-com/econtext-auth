@@ -13,17 +13,21 @@ class Search:
     routes = [
         'users/search/{search}',
     ]
-    
+
     @staticmethod
     def get_route_constructor(*args, **kwargs):
         return Search(*args)
-    
+
     def __init__(self, econtext):
         self.econtext = econtext
-    
+
     def on_get(self, req, resp, search):
         """
         Retrieve a list of users that match the provided search term
+        
+        
+        
+        
         
         :type search: str
         
@@ -32,7 +36,7 @@ class Search:
         :param search: A string to search for
         :return:
         """
-        
+
         user_search = models.user.user.User.objects.query.filter(lambda user: (user['email'].match(search)) | (user['name'].match(search)) | (user['id'].match(search))).run()
         log.debug(type(user_search))
 
