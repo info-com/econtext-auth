@@ -72,8 +72,13 @@ class Authenticate:
                     resp.body = "SUCESS"
                     return True
 
+        #ASK ABOUT THIS! expect secret and id from user?
         if body['type'] == "apikey":
             a=ApiKey.get(body['credential']['secretId'])
+            if a:
+                if a.fields.secret==body['credential']['secret']:
+                    resp.body = "SUCESS"
+                    return True
         resp.body= "FAIL"
         return False
         
