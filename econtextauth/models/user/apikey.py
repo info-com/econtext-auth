@@ -27,7 +27,8 @@ class ApiKey(Model):
         return {
             'id': self.fields.id,
             'name': self.fields.name,
-            'description': self.fields.description
+            'description': self.fields.description,
+            'href': '/api/user/apikey/{}'.format(self.fields.id)
         }
 
     def __init__(self, name=None, secret=None, status=None, description=None, createdAt=None, *args, **kwargs):

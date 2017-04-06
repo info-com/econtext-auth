@@ -7,6 +7,7 @@ id
 email
 password (hashed)
 name
+href
 status (ENABLED|DISABLED)
 customData (a JSON object)
 createdAt (2017-02-10T21:32:18.042Z)
@@ -38,7 +39,8 @@ class User(Model):
             'name': self.fields.name,
             'email': self.fields.email,
             'customData': self.fields.customData,
-
+            'href': '/api/user/user/{}'.format(self.fields.id),
+            
             # Extra relations
             'api_keys': list(self.fields.api_keys.all()),
             'groups': list(self.fields.groups.all()),
