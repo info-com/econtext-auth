@@ -32,7 +32,7 @@ class Apikey:
 
         search_user = models.user.user.User.get(userid)
         if not search_user:
-            raise ('No user found with apikey')
+            raise Exception('No user found with apikey')
         body = req.context['body']
         new_apikey = models.user.apikey.ApiKey.create_new(body.get('name'), body.get('description'))
         search_user["api_keys"].add(new_apikey)
