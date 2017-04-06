@@ -65,7 +65,7 @@ class Group:
         resp.body = get_group
         return True
 
-    def on_put(self, req, resp, groupId):
+    def on_put(self, req, resp, groupid):
         """
         Update a group specified by the groupid
 
@@ -79,7 +79,7 @@ class Group:
         :param groupid:
         :return:
         """
-        groupId = groupId or None
+        groupId = groupid or None
         body = req.context['body']
         update_group = models.group.group.Group.get(groupId)
         for k in body:
@@ -91,7 +91,7 @@ class Group:
         resp.body = update_group
         return True
 
-    def on_delete(self, req, resp, groupId):
+    def on_delete(self, req, resp, groupid):
         """
         Remove a group specified by the groupid
 
@@ -102,7 +102,7 @@ class Group:
         :param groupid:
         :return:
         """
-        groupId = groupId or None
+        groupId = groupid or None
         delete_group = models.group.group.Group(groupId)
         delete_group['status'] = 'DELETED'
         delete_group.save()

@@ -53,8 +53,20 @@ class Group(Model):
 
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
-
+        if Group.already_exists(name):
+            raise Exception("A group with that name address already exists")
         g = Group(name=name, customData=customData, description=description, status=status, createdAt=createdAt,
                   modifiedAt=modifiedAt)
         g.save()
         return g
+
+    @staticmethod
+    def already_exists(group_name):
+        """
+        Check to see if a record exists already with this applicaiton name
+        :param applciation_name:
+        :return boolean:
+        """
+        if Group.get(name=group_name):
+            return True
+        return False

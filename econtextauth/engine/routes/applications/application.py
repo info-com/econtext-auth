@@ -66,7 +66,7 @@ class Application:
         return True
 
 
-    def on_put(self, req, resp, applicationId):
+    def on_put(self, req, resp, applicationid):
         """
         Update an application specified by the applicaitonid
 
@@ -81,7 +81,7 @@ class Application:
         :return:
         """
 
-        applicationId = applicationId or None
+        applicationId = applicationid or None
         body = req.context['body']
         update_application = models.application.application.Application.get(applicationId)
         for k in body:
@@ -92,7 +92,7 @@ class Application:
         log.debug(update_application)
         resp.body = update_application
         return True
-    def on_delete(self, req, resp, applicationId):
+    def on_delete(self, req, resp, applicationid):
         """
         Remove an application specified by the applicationId
 
@@ -103,12 +103,7 @@ class Application:
         :param applicationId:
         :return:
         """
-
-        # This will not delete DB entry just change status to Deleted.
-        # check user exists
-        # check status?
-        # change status to deleted
-        applicationId = applicationId or None
+        applicationId = applicationid or None
         delete_application = models.application.application.Application.get(applicationId)
         delete_application["status"] = "DELETED"
         delete_application.save()
