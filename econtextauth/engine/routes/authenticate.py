@@ -1,5 +1,6 @@
 from argon2 import PasswordHasher
 from econtextauth.models.user.user import User
+from econtextauth.models.user.apikey import ApiKey
 import logging
 
 log = logging.getLogger('econtext')
@@ -11,17 +12,15 @@ class Authenticate:
     
     Authenticate against the eContext user store
     """
-    routes = [
-        'authenticate'
-    ]
-
+    routes = ['authenticate']
+    
     @staticmethod
     def get_route_constructor(*args, **kwargs):
         return Authenticate(*args)
-
+    
     def __init__(self, options):
         self.options = options
-
+    
     def on_post(self, req, resp):
         """
         Authenticate a user given a set of credentials.  We expect to
@@ -64,22 +63,34 @@ class Authenticate:
         if body['type'] == 'username':
             u = User.get(email=body['credential']['email'])
             if u:
-
+                if self.checkPass(u.fields.password, body['credential']['password']):
+                    resp.body = "SUCESS"
+                    return True
+                
                 application_list = list(u.fields.applications.all())
-                app_check = False
-                for apps in application_list:
-                    print apps.fields.id
-                    if body['application'] == apps.fields.id:
-                        app_check = True
-                if not app_check:
-                    resp.body = "FAIL"
-                    return False
-
-                ph = PasswordHasher()
-                # passcheck=ph.verify(u.fields.password, body['credential']['password'])
-                if ph.verify(u.fields.password, body['credential']['password']):
+                if self.checkForApplication(application_list,body['application']):
                     resp.body = "SUCESS"
                     return True
 
-        resp.body = "FAIL"
+        if body['type'] == "apikey":
+            a=ApiKey.get(body['credential']['secretId'])
+        resp.body= "FAIL"
+        return False
+        
+
+        
+
+
+
+    @staticmethod
+    def checkPass(bodytext,dbpass):
+        ph = PasswordHasher()
+        if ph.verify(bodytext,dbpass):
+            return True
+        return False
+    @staticmethod
+    def checkForApplication(applist, appid):
+        for apps in applist:
+            if appid == apps.fields.id:
+                return True
         return False

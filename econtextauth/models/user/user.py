@@ -82,7 +82,8 @@ class User(Model):
         created_at = created_at or r.now()
         modified_at = modified_at or r.now()
         password_modified_at = password_modified_at or r.now()
-        assert (type(name) is str ), "name is not string type!"
+        #log.debug('typeof name: ',type(name))
+        #assert (type(name) is str ), "name is not string type!"
         #assert isinstance(name, str)
 
         

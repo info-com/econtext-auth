@@ -48,17 +48,23 @@ class User:
         :return:
         """
         body = req.context['body']
-        application_id = body.get('applicationID')
+        application_id = body.get('applicationId')
         log.debug(application_id)
-
+        if not application_id:
+            resp.body='No application ID provided'
+            return False
         user_application = models.application.application.Application.get(application_id)
-        new_user = models.user.user.User.create_new(body['email'], body['password'])
+        
         log.debug(user_application)
 
         #fix this...
-        if application_id:
+        if user_application:
+            new_user = models.user.user.User.create_new(body['email'], body['password'])
             new_user["applications"].add(user_application)
             user_application["users"].add(new_user)
+        else:
+            resp.body="Invalid application ID!"
+            return False
         # print user_application["users"].count()
         # print list(user_application["users"].all())
         # print new_user["applications"].count()
