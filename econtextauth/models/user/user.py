@@ -42,10 +42,9 @@ class User(Model):
             'href': '/api/users/user/{}'.format(self.fields.id),
             
             # Extra relations
-            #pluck group.id app.id, ONLY SHOW LIST OF ID's
             'api_keys': list(self.fields.api_keys.all()),
-            'groups': list(self.fields.groups.all()),
-            'applications': list(self.fields.applications.all())
+            'groups': self.show_groups(list(self.fields.groups.all())),
+            'applications': self.show_applications(list(self.fields.applications.all()))
         }
 
     def __init__(self, *args, **kwargs):
@@ -86,9 +85,12 @@ class User(Model):
         assert (type(name) is str ), "name is not string type!"
         #assert isinstance(name, str)
 
+        
         status = "ENABLED"
         u = User(email=email, password=password, name=name, customData=custom_data, status=status, createdAt=created_at,
                  modifiedAt=modified_at, passwordModifiedAt=password_modified_at)
+        
+        #DONT SAVE UNLESS USER HAS AN APPLICATION ASSOCIATED!!!
         u.save()
         return u
 
@@ -106,3 +108,17 @@ class User(Model):
     @staticmethod
     def valid_email(email):
         return validate_email(email)
+
+    @staticmethod
+    def show_applications(applist):
+        appidlist=[]
+        for ap in applist:
+            appidlist.append(ap.fields.id)
+        return appidlist
+        
+    @staticmethod
+    def show_groups(grouplist):
+        groupidlist=[]
+        for gr in grouplist:
+            groupidlist.append(gr.fields.id)
+        return groupidlist
