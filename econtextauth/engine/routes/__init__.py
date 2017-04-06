@@ -15,6 +15,7 @@ route_classes = [
     users.user.User,
     users.users.Users,
     users.apikey.Apikey,
+    users.add.Add,
     users.search.Search,
     groups.group.Group,
     groups.groups.Groups,

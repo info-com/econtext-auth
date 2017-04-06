@@ -43,8 +43,8 @@ class User(Model):
             
             # Extra relations
             'api_keys': list(self.fields.api_keys.all()),
-            'groups': self.show_groups(list(self.fields.groups.all())),
-            'applications': self.show_applications(list(self.fields.applications.all()))
+            'groups': self.show_ids(list(self.fields.groups.all())),
+            'applications': self.show_ids(list(self.fields.applications.all()))
         }
 
     def __init__(self, *args, **kwargs):
@@ -91,7 +91,6 @@ class User(Model):
         u = User(email=email, password=password, name=name, customData=custom_data, status=status, createdAt=created_at,
                  modifiedAt=modified_at, passwordModifiedAt=password_modified_at)
         
-        #DONT SAVE UNLESS USER HAS AN APPLICATION ASSOCIATED!!!
         u.save()
         return u
 
@@ -111,15 +110,12 @@ class User(Model):
         return validate_email(email)
 
     @staticmethod
-    def show_applications(applist):
-        appidlist=[]
-        for ap in applist:
-            appidlist.append(ap.fields.id)
-        return appidlist
+    def show_ids(idlist):
+        returnidlist=[]
+        for ap in idlist:
+            returnidlist.append(ap.fields.id)
+        return returnidlist
         
-    @staticmethod
-    def show_groups(grouplist):
-        groupidlist=[]
-        for gr in grouplist:
-            groupidlist.append(gr.fields.id)
-        return groupidlist
+    
+    #add to group
+    #add to applicaiton

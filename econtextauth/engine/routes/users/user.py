@@ -57,7 +57,7 @@ class User:
         
         log.debug(user_application)
 
-        #fix this...
+    
         if user_application:
             new_user = models.user.user.User.create_new(body['email'], body['password'])
             new_user["applications"].add(user_application)

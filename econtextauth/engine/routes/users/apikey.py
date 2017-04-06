@@ -36,8 +36,9 @@ class Apikey:
         body = req.context['body']
         new_apikey = models.user.apikey.ApiKey.create_new(body.get('name'), body.get('description'))
         search_user["api_keys"].add(new_apikey)
+        search_user.save()
         # print search_user["api_keys"].count()
         # print list(search_user["api_keys"].all())
-        search_user.save()
+        
         resp.body = new_apikey
         return True
