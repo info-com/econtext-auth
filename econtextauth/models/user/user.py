@@ -42,6 +42,7 @@ class User(Model):
             'href': '/api/users/user/{}'.format(self.fields.id),
             
             # Extra relations
+            #pluck group.id app.id, ONLY SHOW LIST OF ID's
             'api_keys': list(self.fields.api_keys.all()),
             'groups': list(self.fields.groups.all()),
             'applications': list(self.fields.applications.all())

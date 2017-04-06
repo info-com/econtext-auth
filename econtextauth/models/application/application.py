@@ -17,23 +17,23 @@ import rethinkdb as r
 
 class Application(Model):
     has_and_belongs_to_many = ("User", "Group")
-
+    
     @property
     def json(self):
         u"""
         Returns this object as a JSON object
         """
-        mydict=self.fields.as_dict()
-        mydict['href']='/api/applications/application/{}'.format(self.fields.id)
+        mydict = self.fields.as_dict()
+        mydict['href'] = '/api/applications/application/{}'.format(self.fields.id)
         return mydict
-
+    
     def __init__(self, name=None, description=None, status=None, createdAt=None, modifiedAt=None, customData=None,
                  *args, **kwargs):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
         super(Application, self).__init__(name=name, description=description, status=status, createdAt=createdAt,
                                           modifiedAt=modifiedAt, customData=customData)
-
+    
     @staticmethod
     def create_new(name, description=None, status=None, createdAt=None, modifiedAt=None, customData=None, *args,
                    **kwargs):
@@ -53,16 +53,16 @@ class Application(Model):
         """
         if Application.already_exists(name):
             raise Exception("An application with that name already exists")
-
-        status="ENABLED"
+        
+        status = "ENABLED"
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
-
+        
         b = Application(name=name, customData=customData, description=description, status=status, createdAt=createdAt,
                         modifiedAt=modifiedAt)
         b.save()
         return b
-
+    
     @staticmethod
     def already_exists(applciation_name):
         """

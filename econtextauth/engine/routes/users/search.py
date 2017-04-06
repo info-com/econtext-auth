@@ -43,5 +43,5 @@ class Search:
         apikey_search=models.user.apikey.ApiKey.objects.query.filter(lambda apikey: (apikey['id'].match(search))).run()
         log.debug(apikey_search)
         log.debug(user_search)
-        resp.body = user_search
+        resp.body = list(user_search)
         return True
