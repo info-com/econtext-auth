@@ -3,3 +3,4 @@ from . import users
 from . import search
 from . import apikey
 from . import add
+from . import delete
