@@ -103,7 +103,7 @@ class Group:
         :return:
         """
         groupId = groupid or None
-        delete_group = models.group.group.Group(groupId)
+        delete_group = models.group.group.Group.get(groupId)
         delete_group['status'] = 'DELETED'
         delete_group.save()
 

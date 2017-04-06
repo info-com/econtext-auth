@@ -77,8 +77,7 @@ class Search:
         # log.debug(user_search_nested)
         #
 
-        # user.user.User.objects.query.filter(
-        #     lambda user: (user['email'].match('hi')) | (user['name'].match('hi')) | (user['id'].match('hi'))).run()
+
         user_search0 = []
         user_search0.append(models.user.user.User.objects.query.filter(
             lambda user: (user['email'].match(search))).map(lambda user:
