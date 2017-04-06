@@ -81,6 +81,7 @@ class User(Model):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
         passwordModifiedAt = passwordModifiedAt or r.now()
+        status="ENABLED"
         u = User(email=email, password=password, name=name, customData=customData, status=status, createdAt=createdAt,
                  modifiedAt=modifiedAt, passwordModifiedAt=passwordModifiedAt)
         u.save()

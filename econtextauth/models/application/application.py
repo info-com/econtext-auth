@@ -52,6 +52,7 @@ class Application(Model):
         if Application.already_exists(name):
             raise Exception("An application with that name already exists")
 
+        status="ENABLED"
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
 

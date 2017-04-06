@@ -51,6 +51,7 @@ class Group(Model):
         :return:
         """
 
+        status="ENABLED"
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
         if Group.already_exists(name):
