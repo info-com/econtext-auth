@@ -7,7 +7,7 @@ from econtextauth import models
 class Search:
     """
     Search
-
+    
     GET - Search for a user
     """
     routes = [
@@ -24,7 +24,7 @@ class Search:
     def on_get(self, req, resp, search):
         """
         Retrieve a list of users that match the provided search term
-
+        
         :type search: str
         
         :param req:

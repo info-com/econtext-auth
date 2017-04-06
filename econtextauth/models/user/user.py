@@ -80,6 +80,9 @@ class User(Model):
         created_at = created_at or r.now()
         modified_at = modified_at or r.now()
         password_modified_at = password_modified_at or r.now()
+        assert (type(name) is str ), "name is not string type!"
+        #assert isinstance(name, str)
+
         status = "ENABLED"
         u = User(email=email, password=password, name=name, customData=custom_data, status=status, createdAt=created_at,
                  modifiedAt=modified_at, passwordModifiedAt=password_modified_at)
