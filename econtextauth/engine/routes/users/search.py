@@ -34,6 +34,10 @@ class Search:
         """
         
         user_search = models.user.user.User.objects.query.filter(lambda user: (user['email'].match(search)) | (user['name'].match(search)) | (user['id'].match(search))).run()
+        log.debug(type(user_search))
+
+        apikey_search=models.user.apikey.ApiKey.objects.query.filter(lambda apikey: (apikey['id'].match(search))).run()
+        log.debug(apikey_search)
         log.debug(user_search)
         resp.body = user_search
         return True
