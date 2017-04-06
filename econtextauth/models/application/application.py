@@ -23,7 +23,9 @@ class Application(Model):
         u"""
         Returns this object as a JSON object
         """
-        return self.fields.as_dict()
+        mydict=self.fields.as_dict()
+        mydict['href']='/api/applications/application/{}'.format(self.fields.id)
+        return mydict
 
     def __init__(self, name=None, description=None, status=None, createdAt=None, modifiedAt=None, customData=None,
                  *args, **kwargs):

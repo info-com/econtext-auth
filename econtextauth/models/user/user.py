@@ -39,7 +39,7 @@ class User(Model):
             'name': self.fields.name,
             'email': self.fields.email,
             'customData': self.fields.customData,
-            'href': '/api/user/user/{}'.format(self.fields.id),
+            'href': '/api/users/user/{}'.format(self.fields.id),
             
             # Extra relations
             'api_keys': list(self.fields.api_keys.all()),
