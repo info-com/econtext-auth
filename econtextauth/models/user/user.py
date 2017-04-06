@@ -15,7 +15,7 @@ passwordModifiedAt (2017-02-10T21:32:18.042Z)
 
 """
 import rethinkdb as r
-from remodel.models import Model, after_init
+from remodel.models import Model
 from argon2 import PasswordHasher
 import logging
 from validate_email import validate_email
@@ -49,8 +49,7 @@ class User(Model):
         super(User, self).__init__(**kwargs)
 
     @staticmethod
-    def create_new(email, password, name=None, customData=None, status=None, createdAt=None, modifiedAt=None,
-                   passwordModifiedAt=None, *args, **kwargs):
+    def create_new(email, password, name=None, custom_data=None, status=None, created_at=None, modified_at=None, password_modified_at=None, *args, **kwargs):
         """
         Create a new User object
         
@@ -78,12 +77,12 @@ class User(Model):
         if len(password.strip()) < 6:
             raise Exception("Password must be at least 7 characters long")
         password = ph.hash(password.strip())
-        createdAt = createdAt or r.now()
-        modifiedAt = modifiedAt or r.now()
-        passwordModifiedAt = passwordModifiedAt or r.now()
-        status="ENABLED"
-        u = User(email=email, password=password, name=name, customData=customData, status=status, createdAt=createdAt,
-                 modifiedAt=modifiedAt, passwordModifiedAt=passwordModifiedAt)
+        created_at = created_at or r.now()
+        modified_at = modified_at or r.now()
+        password_modified_at = password_modified_at or r.now()
+        status = "ENABLED"
+        u = User(email=email, password=password, name=name, customData=custom_data, status=status, createdAt=created_at,
+                 modifiedAt=modified_at, passwordModifiedAt=password_modified_at)
         u.save()
         return u
 
@@ -101,7 +100,3 @@ class User(Model):
     @staticmethod
     def valid_email(email):
         return validate_email(email)
-
-
-        # @staticmethod
-        # def delete_status():
