@@ -15,6 +15,10 @@ from remodel.models import Model
 import uuid
 import base64
 from argon2 import PasswordHasher
+import logging
+log=logging.getLogger('econtext')
+
+
 
 class ApiKey(Model):
     belongs_to = ("User",)
@@ -66,3 +70,48 @@ class ApiKey(Model):
                    modifiedAt=modifiedAt)
         a.save()
         return a
+
+
+    @staticmethod
+    def edit_apikey(update_apikey,name=None,description=None,status=None,customData=None, *args, **kwargs):
+        if kwargs is not None:
+            ap = update_apikey
+            log.debug(name)
+            log.debug(description)
+            log.debug(status)
+        
+            if name != None and (name != ap['name']):
+            
+                if ApiKey.empty_req_param(name):
+                    raise Exception('A name is required for apikey')
+                if ApiKey.already_exists(name):
+                    raise Exception("An apikey with that name address already exists")
+                ap['name'] = name
+        
+            if description != None:
+                ap['description'] = description
+        
+            if status != None:
+                ap['status'] = status
+            if customData != None:
+                ap['customData'] = customData
+        
+            ap.save()
+            return ap
+
+    @staticmethod
+    def already_exists(apikey_name):
+        """
+        Check to see if a record exists already with this applicaiton name
+        :param applciation_name:
+        :return boolean:
+        """
+        if ApiKey.get(name=apikey_name):
+            return True
+        return False
+
+    @staticmethod
+    def empty_req_param(req_param):
+        if req_param == '' or req_param == None:
+            return True
+        return False
