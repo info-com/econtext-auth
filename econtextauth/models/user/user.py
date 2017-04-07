@@ -51,7 +51,7 @@ class User(Model):
         super(User, self).__init__(**kwargs)
 
     @staticmethod
-    def create_new(email, password, name=None, custom_data=None, status=None, created_at=None, modified_at=None, password_modified_at=None, *args, **kwargs):
+    def create_new(email, password, name=None, custom_data=None, created_at=None, modified_at=None, password_modified_at=None, *args, **kwargs):
         """
         Create a new User object
         
@@ -117,5 +117,3 @@ class User(Model):
         return returnidlist
         
     
-    #add to group
-    #add to applicaiton
