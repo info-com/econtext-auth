@@ -62,8 +62,4 @@ class Delete:
             return True
         
         else:
-            raise ("Can only add application or group!")
-
-
-
-
+            raise Exception("Can only add application or group!")

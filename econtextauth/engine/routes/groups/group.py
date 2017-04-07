@@ -14,21 +14,18 @@ class Group:
        GET  - Retrieve a group
        PUT  - Update a group
        DELETE - Remove a group (updates status to deleted - doesn't actually remove the record)
-       """
-    routes = [
-        'groups/group',
-        'groups/group/{groupid}'
-    ]
-
+    """
+    routes = ['groups/group', 'groups/group/{groupid}']
+    
     remodel.connection.pool.configure(db="econtext_users")
-
+    
     @staticmethod
     def get_route_constructor(*args, **kwargs):
         return Group(*args)
-
+    
     def __init__(self, econtext):
         self.econtext = econtext
-
+    
     def on_post(self, req, resp):
         """
         Create a new Group.
@@ -40,7 +37,7 @@ class Group:
             modifiedAt
             customData
 
-        :todo 
+        :todo
 
         :param req:
         :param resp:
@@ -48,10 +45,10 @@ class Group:
         """
         body = req.context['body']
         new_group = models.group.group.Group.create_new(name=body.get('name'), description=body.get('description'))
-
+        
         resp.body = new_group
         return True
-
+    
     def on_get(self, req, resp, groupid):
         """
         Retrieve a group specified by id
@@ -64,7 +61,7 @@ class Group:
         get_group = models.group.group.Group.get(groupid)
         resp.body = get_group
         return True
-
+    
     def on_put(self, req, resp, groupid):
         """
         Update a group specified by the groupid
@@ -85,12 +82,12 @@ class Group:
         for k in body:
             update_group[k] = body[k]
             log.debug(update_group[k], body[k])
-
+        
         update_group.save()
         log.debug(update_group)
         resp.body = update_group
         return True
-
+    
     def on_delete(self, req, resp, groupid):
         """
         Remove a group specified by the groupid
@@ -106,6 +103,6 @@ class Group:
         delete_group = models.group.group.Group.get(groupId)
         delete_group['status'] = 'DELETED'
         delete_group.save()
-
+        
         resp.body = delete_group
         return True

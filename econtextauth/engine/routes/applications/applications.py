@@ -1,10 +1,17 @@
 import logging
+from econtextauth.models.application import application
 
 log = logging.getLogger('econtext')
-from econtextauth.models.application import application
+
 
 
 class Applications:
+    """
+       Applications
+       
+       GET  - Retrieve all Applications
+
+    """
     routes = ['applications/applications']
     
     def __init__(self, econtext):
@@ -15,8 +22,14 @@ class Applications:
         return Applications(*args)
     
     def on_get(self, req, resp):
+        """
+        Retrieve aall applications
+
+        :param req:
+        :param resp:
+        :return:
+        """
         show_table = list(application.Application.all())
         log.debug(show_table)
         resp.body = show_table
         return True
-
