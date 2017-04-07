@@ -60,18 +60,35 @@ class Authenticate:
         :return:
         """
         body = req.context['body']
+        
+        #THIS IS REPEATING CODE, MOVE TO FUNCTION
         if body['type'] == 'username':
             u = User.get(email=body['credential']['email'])
             if u:
+                if u.fields.status == "DISABLED":
+                    resp.body = "DISABLED"
+                    return False
+                if u.fields.status == "DELETED":
+                    resp.body = "DELETED"
+                    return False
+                
                 if self.checkPass(u.fields.password, body['credential']['password']):
                     application_list = list(u.fields.applications.all())
                     if self.checkForApplication(application_list,body['application']):
                         resp.body = "SUCESS"
                         return True
 
+        # THIS IS REPEATING CODE, MOVE TO FUNCTION  ^^^
         if body['type'] == "apikey":
             a=ApiKey.get(body['credential']['secretId'])
             if a:
+                if a.fields.status == "DISABLED":
+                    resp.body = "DISABLED"
+                    return False
+                if a.fields.status == "DELETED":
+                    resp.body = "DELETED"
+                    return False
+                
                 if self.checkPass(a.fields.secret, body['credential']['secret']):
                     application_list = list(a.fields.applications.all())
                     if self.checkForApplication(application_list,body['application']):
@@ -95,3 +112,5 @@ class Authenticate:
             if appid == apps.fields.id:
                 return True
         return False
+    
+    

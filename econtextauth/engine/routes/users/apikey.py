@@ -57,3 +57,23 @@ class Apikey:
         resp.body=mod_apikey
         resp.body=update_apikey
         return True
+
+    def on_delete(self, req, resp, userid):
+        """
+        Remove a user specified by the userid
+
+        The user specified should have the status changed to "deleted"
+
+        :param req:
+        :param resp:
+        :param userid:
+        :return:
+        """
+    
+        userid = userid or None
+        delete_user = models.user.user.User.get(userid)
+        delete_user["status"] = "DISABLED"
+        delete_user.save()
+    
+        resp.body = delete_user
+        return True
