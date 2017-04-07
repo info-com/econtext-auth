@@ -61,7 +61,36 @@ class Application:
         new_application = models.application.application.Application.get(applicationid)
         resp.body = new_application
         return True
-    
+    #
+    # def on_put(self, req, resp, applicationid):
+    #     """
+    #     Update an application specified by the applicaitonid
+    #
+    #     This function should receive (key, value) pairs to update.
+    #     Ultimately, the application should be retrieved, changed fields
+    #     verified, and then those changed fields should be updated in
+    #     the database
+    #
+    #     :param req:
+    #     :param resp:
+    #     :param applicationid:
+    #     :return:
+    #     """
+    #
+    #     applicationId = applicationid or None
+    #     body = req.context['body']
+    #     update_application = models.application.application.Application.get(applicationId)
+    #     for k in body:
+    #         update_application[k] = body[k]
+    #         log.debug(update_application[k], body[k])
+    #
+    #     update_application.save()
+    #     log.debug(update_application)
+    #     resp.body = update_application
+    #     return True
+    #
+
+
     def on_put(self, req, resp, applicationid):
         """
         Update an application specified by the applicaitonid
@@ -76,19 +105,23 @@ class Application:
         :param applicationid:
         :return:
         """
-        
+    
         applicationId = applicationid or None
         body = req.context['body']
         update_application = models.application.application.Application.get(applicationId)
-        for k in body:
-            update_application[k] = body[k]
-            log.debug(update_application[k], body[k])
+        if update_application is None:
+            raise Exception('ApplicationId not found!')
+
+        update_application.save_application(update_application, **body)
+        # for k in body:
+        #     update_application[k] = body[k]
+        #     log.debug(update_application[k], body[k])
+        #
         
-        update_application.save()
         log.debug(update_application)
         resp.body = update_application
         return True
-    
+
     def on_delete(self, req, resp, applicationid):
         """
         Remove an application specified by the applicationId

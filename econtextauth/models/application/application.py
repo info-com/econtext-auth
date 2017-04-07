@@ -13,6 +13,8 @@ customData
 """
 from remodel.models import Model
 import rethinkdb as r
+import logging
+log = logging.getLogger('econtext')
 
 
 class Application(Model):
@@ -35,7 +37,7 @@ class Application(Model):
                                           modifiedAt=modifiedAt, customData=customData)
     
     @staticmethod
-    def create_new(name, description=None, createdAt=None, modifiedAt=None, customData=None, *args,
+    def create_new(name, description=None, customData=None, *args,
                    **kwargs):
         """
         Create a new Apllication object
@@ -56,14 +58,52 @@ class Application(Model):
         if Application.empty_req_param(name):
             raise Exception("A name is required for applicaitons")
         status = "ENABLED"
-        createdAt = createdAt or r.now()
-        modifiedAt = modifiedAt or r.now()
+        createdAt = r.now()
+        modifiedAt = r.now()
         
         b = Application(name=name, customData=customData, description=description, status=status, createdAt=createdAt,
                         modifiedAt=modifiedAt)
         b.save()
         return b
-    
+
+    @staticmethod
+    def save_application(update_application, name=None, description=None, status=None, customData=None, **kwargs):
+        """
+        Saves a Group object
+
+        :param name:
+        :param customData:
+        :param status:
+        :param description:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if kwargs is not None:
+            a = update_application
+            log.debug(name)
+            log.debug(description)
+            log.debug(status)
+        
+            if name != None and (name != a['name']):
+            
+                if Application.empty_req_param(name):
+                    raise Exception('A name is required for applications')
+                if Application.already_exists(name):
+                    raise Exception("An application with that name already exists")
+                a['name'] = name
+        
+            if description != None:
+                a['description'] = description
+        
+            if status != None:
+                a['status'] = status
+            if customData != None:
+                a['customData'] = customData
+        
+            a.save()
+            return a
+
     @staticmethod
     def already_exists(applciation_name):
         """

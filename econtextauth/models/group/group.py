@@ -68,7 +68,7 @@ class Group(Model):
         return g
 
     @staticmethod
-    def save_group(update_group, name, description=None, status=None, customData=None, **kwargs):
+    def save_group(update_group, name=None, description=None, status=None, customData=None, **kwargs):
         """
         Saves a Group object
 

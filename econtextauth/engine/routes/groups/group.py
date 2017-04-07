@@ -114,9 +114,6 @@ class Group:
         update_group = models.group.group.Group.get(groupId)
         if update_group is None:
             raise Exception('GroupId not found!')
-        # for k in body:
-        #     update_group[k] = body[k]
-        #     log.debug(update_group[k], body[k])
 
         update_group.save_group(update_group, **body)
         log.debug(update_group)
