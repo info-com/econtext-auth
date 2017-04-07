@@ -14,7 +14,7 @@ import rethinkdb as r
 from remodel.models import Model
 import uuid
 import base64
-
+from argon2 import PasswordHasher
 
 class ApiKey(Model):
     belongs_to = ("User",)
@@ -56,7 +56,9 @@ class ApiKey(Model):
         :return:
         """
 
-        secret = base64.b64encode(str(uuid.uuid1()))
+        secret_uuid = base64.b64encode(str(uuid.uuid1()))
+        ph=PasswordHasher
+        secret = ph.hash(secret_uuid)
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
         status = 'ENABLED'

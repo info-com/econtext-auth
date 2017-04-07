@@ -57,6 +57,8 @@ class Group(Model):
         status="ENABLED"
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
+        if Group.empty_req_param(name):
+            raise Exception('param cannot be none')
         if Group.already_exists(name):
             raise Exception("A group with that name address already exists")
         g = Group(name=name, customData=customData, description=description, status=status, createdAt=createdAt,
@@ -74,3 +76,10 @@ class Group(Model):
         if Group.get(name=group_name):
             return True
         return False
+    
+    @staticmethod
+    def empty_req_param(req_param):
+        if req_param == '' or req_param == None:
+            return True
+        return False
+        

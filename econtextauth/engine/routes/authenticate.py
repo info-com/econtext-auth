@@ -64,27 +64,23 @@ class Authenticate:
             u = User.get(email=body['credential']['email'])
             if u:
                 if self.checkPass(u.fields.password, body['credential']['password']):
-                    resp.body = "SUCESS"
-                    return True
-                
-                application_list = list(u.fields.applications.all())
-                if self.checkForApplication(application_list,body['application']):
-                    resp.body = "SUCESS"
-                    return True
+                    application_list = list(u.fields.applications.all())
+                    if self.checkForApplication(application_list,body['application']):
+                        resp.body = "SUCESS"
+                        return True
 
-        #ASK ABOUT THIS! expect secret and id from user?
         if body['type'] == "apikey":
             a=ApiKey.get(body['credential']['secretId'])
             if a:
-                if a.fields.secret==body['credential']['secret']:
-                    resp.body = "SUCESS"
-                    return True
+                if self.checkPass(a.fields.secret, body['credential']['secret']):
+                    application_list = list(a.fields.applications.all())
+                    if self.checkForApplication(application_list,body['application']):
+                        resp.body = "SUCESS"
+                        return True
+
         resp.body= "FAIL"
         return False
         
-
-        
-
 
 
     @staticmethod
