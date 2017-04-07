@@ -35,7 +35,7 @@ class Application(Model):
                                           modifiedAt=modifiedAt, customData=customData)
     
     @staticmethod
-    def create_new(name, description=None, status=None, createdAt=None, modifiedAt=None, customData=None, *args,
+    def create_new(name, description=None, createdAt=None, modifiedAt=None, customData=None, *args,
                    **kwargs):
         """
         Create a new Apllication object
@@ -53,7 +53,8 @@ class Application(Model):
         """
         if Application.already_exists(name):
             raise Exception("An application with that name already exists")
-        
+        if Application.empty_req_param(name):
+            raise Exception("A name is required for applicaitons")
         status = "ENABLED"
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
@@ -71,5 +72,11 @@ class Application(Model):
         :return boolean:
         """
         if Application.get(name=applciation_name):
+            return True
+        return False
+    
+    @staticmethod
+    def empty_req_param(req_param):
+        if req_param == '' or req_param == None:
             return True
         return False

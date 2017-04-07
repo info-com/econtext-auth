@@ -37,7 +37,7 @@ class ApiKey(Model):
                                      description=description)
 
     @staticmethod
-    def create_new(name=None, description=None, status=None, createdAt=None, modifiedAt=None, *args, **kwargs):
+    def create_new(name=None, description=None, createdAt=None, modifiedAt=None, *args, **kwargs):
         """
         Create a new ApiKey object
 
@@ -57,7 +57,7 @@ class ApiKey(Model):
         """
 
         secret_uuid = base64.b64encode(str(uuid.uuid1()))
-        ph=PasswordHasher
+        ph=PasswordHasher()
         secret = ph.hash(secret_uuid)
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
