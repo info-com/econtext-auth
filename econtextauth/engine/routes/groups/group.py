@@ -67,6 +67,34 @@ class Group:
         resp.body = get_group
         return True
     
+    # def on_put(self, req, resp, groupid):
+    #     """
+    #     Update a group specified by the groupid
+    #
+    #     This function should receive (key, value) pairs to update.
+    #     Ultimately, the group should be retrieved, changed fields
+    #     verified, and then those changed fields should be updated in
+    #     the database
+    #
+    #     :param req:
+    #     :param resp:
+    #     :param groupid:
+    #     :return:
+    #     """
+    #     groupId = groupid or None
+    #     body = req.context['body']
+    #     update_group = models.group.group.Group.get(groupId)
+    #     for k in body:
+    #         update_group[k] = body[k]
+    #         log.debug(update_group[k], body[k])
+    #
+    #     update_group.save()
+    #     log.debug(update_group)
+    #     resp.body = update_group
+    #     return True
+    #
+
+
     def on_put(self, req, resp, groupid):
         """
         Update a group specified by the groupid
@@ -84,15 +112,19 @@ class Group:
         groupId = groupid or None
         body = req.context['body']
         update_group = models.group.group.Group.get(groupId)
-        for k in body:
-            update_group[k] = body[k]
-            log.debug(update_group[k], body[k])
-        
-        update_group.save()
+        if update_group is None:
+            raise Exception('GroupId not found!')
+        # for k in body:
+        #     update_group[k] = body[k]
+        #     log.debug(update_group[k], body[k])
+
+        update_group.save_group(update_group, **body)
         log.debug(update_group)
         resp.body = update_group
         return True
-    
+
+
+
     def on_delete(self, req, resp, groupid):
         """
         Remove a group specified by the groupid
