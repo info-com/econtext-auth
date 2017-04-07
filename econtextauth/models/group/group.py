@@ -37,7 +37,7 @@ class Group(Model):
                                     modifiedAt=modifiedAt, customData=customData)
 
     @staticmethod
-    def create_new(name, description=None, customData=None, status=None, createdAt=None, modifiedAt=None, *args,
+    def create_new(name, description=None, customData=None,createdAt=None, modifiedAt=None, *args,
                    **kwargs):
         """
         Create a new Group object
@@ -58,7 +58,7 @@ class Group(Model):
         createdAt = createdAt or r.now()
         modifiedAt = modifiedAt or r.now()
         if Group.empty_req_param(name):
-            raise Exception('param cannot be none')
+            raise Exception('A name is required for groups')
         if Group.already_exists(name):
             raise Exception("A group with that name address already exists")
         g = Group(name=name, customData=customData, description=description, status=status, createdAt=createdAt,

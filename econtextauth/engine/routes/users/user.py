@@ -44,7 +44,7 @@ class User:
         application_id = body.get('applicationId')
         log.debug(application_id)
         if not application_id:
-            resp.body = 'No application ID provided'
+            resp.body = 'No applicationId provided'
             return False
         user_application = models.application.application.Application.get(application_id)
         
@@ -78,33 +78,66 @@ class User:
         resp.body = new_user
         return True
     
+    # def on_put(self, req, resp, userid):
+    #     """
+    #     Update a user specified by the userid
+    #
+    #     This function should receive (key, value) pairs to update.
+    #     Ultimately, the user should be retrieved, changed fields
+    #     verified, and then those changed fields should be updated in
+    #     the database
+    #
+    #     :param req:
+    #     :param resp:
+    #     :param userid:
+    #     :return:
+    #
+    #
+    #
+    #     """
+    #
+    #     userid = userid or None
+    #     body = req.context['body']
+    #     update_user = models.user.user.User.get(userid)
+    #
+    #     for k in body:
+    #         update_user[k] = body[k]
+    #         log.debug(update_user[k], body[k])
+    #
+    #     update_user.save()
+    #     log.debug(update_user)
+    #     resp.body = update_user
+    #     return True
+
+
     def on_put(self, req, resp, userid):
         """
         Update a user specified by the userid
-        
+
         This function should receive (key, value) pairs to update.
         Ultimately, the user should be retrieved, changed fields
         verified, and then those changed fields should be updated in
         the database
-        
+
         :param req:
         :param resp:
         :param userid:
         :return:
+
         """
-        
+    
         userid = userid or None
         body = req.context['body']
         update_user = models.user.user.User.get(userid)
-        
-        for k in body:
-            update_user[k] = body[k]
-            log.debug(update_user[k], body[k])
-        
-        update_user.save()
+        if update_user is None:
+            raise Exception ('UserId not found!')
+        update_user.save_user(update_user, **body)
+    
+
         log.debug(update_user)
         resp.body = update_user
         return True
+    
     
     def on_delete(self, req, resp, userid):
         """
