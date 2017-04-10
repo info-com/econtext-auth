@@ -63,7 +63,12 @@ class Authenticate:
         
         #THIS IS REPEATING CODE, MOVE TO FUNCTION
         if body['type'] == 'username':
-            u = User.get(email=body['credential']['email'])
+            try:
+                u = User.get(email=body['credential']['email'])
+            except KeyError:
+                log.debug("keyerror")
+                resp.body = "FAIL"
+                return False
             if u:
                 if u.fields.status == "DISABLED":
                     resp.body = "DISABLED"
@@ -71,16 +76,22 @@ class Authenticate:
                 if u.fields.status == "DELETED":
                     resp.body = "DELETED"
                     return False
+
                 
-                if self.checkPass(u.fields.password, body['credential']['password']):
+                if self.checkPass(u.fields.password,body['credential']['password'].strip()):
                     application_list = list(u.fields.applications.all())
                     if self.checkForApplication(application_list,body['application']):
                         resp.body = "SUCESS"
                         return True
+            
 
         # THIS IS REPEATING CODE, MOVE TO FUNCTION  ^^^
         if body['type'] == "apikey":
-            a=ApiKey.get(body['credential']['secretId'])
+            try:
+                a=ApiKey.get(body['credential']['secretId'])
+            except KeyError:
+                resp.body = "FAIL"
+                return False
             if a:
                 if a.fields.status == "DISABLED":
                     resp.body = "DISABLED"
@@ -89,7 +100,8 @@ class Authenticate:
                     resp.body = "DELETED"
                     return False
                 
-                if self.checkPass(a.fields.secret, body['credential']['secret']):
+                log.debug("checking apps")
+                if self.checkPass(body['credential']['secret'],a.fields.secret ):
                     application_list = list(a.fields.applications.all())
                     if self.checkForApplication(application_list,body['application']):
                         resp.body = "SUCESS"
@@ -101,11 +113,17 @@ class Authenticate:
 
 
     @staticmethod
-    def checkPass(bodytext,dbpass):
+    def checkPass(dbpass,bodytext):
         ph = PasswordHasher()
-        if ph.verify(bodytext,dbpass):
+        try:
+            ph.verify(dbpass,bodytext)
+        except:
+            log.debug('verify failed..')
+            return False
+        else:
+            log.debug('password matched')
             return True
-        return False
+        
     @staticmethod
     def checkForApplication(applist, appid):
         for apps in applist:
@@ -113,4 +131,4 @@ class Authenticate:
                 return True
         return False
     
-    
+   
