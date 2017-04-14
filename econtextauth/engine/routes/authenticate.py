@@ -71,12 +71,16 @@ class Authenticate:
             
             elif body['type'] == "apikey":
                 a = ApiKey.get(body['credential']['username'])
-                hashed_password = a.fields.secret
-                u = a.fields.user
+                if Authenticate.check_status(a):
+                    hashed_password = a.fields.secret
+                    u = a.fields.user
             
-            applications = set([app.fields.id for app in u.fields.applications.all()])
+            if not Authenticate.check_status(u):
+                raise Exception()
             if not Authenticate.check_pass(hashed_password, body['credential']['password']):
                 raise Exception()
+            
+            applications = set([app.fields.id for app in u.fields.applications.all()])
             if body['application'] not in applications:
                 raise Exception()
             
@@ -86,7 +90,21 @@ class Authenticate:
             resp.body = False
         
         return True
+    
+    @staticmethod
+    def check_status(item):
+        """
+        Checks the status field for the object, and returns False if
+        the object doesn't exist or if the status equals DISABLED
         
+        :param item:
+        :return:
+        """
+        status = item.get('status')
+        if not status or str(status).upper() == 'DISABLED':
+            return False
+        return True
+    
     @staticmethod
     def check_pass(hashed_password, unhashed_password):
         if not hashed_password or not unhashed_password.strip():

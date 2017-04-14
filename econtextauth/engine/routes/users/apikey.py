@@ -23,7 +23,26 @@ class Apikey:
 
     def __init__(self, econtext):
         self.econtext = econtext
+    
+    def on_get(self, req, resp, userid, apikeyid):
+        """
+        GET an ApiKey object
         
+        :param req:
+        :param resp:
+        :param userid:
+        :param apikeyid:
+        :return:
+        """
+        user = models.user.user.User.get(userid)
+        key = models.user.apikey.ApiKey.get(apikeyid)
+        if user is None:
+            raise Exception('User not found')
+        if not key:
+            raise Exception('ApiKey not found')
+        resp.body = key
+        return True
+    
     def on_post(self, req, resp, userid):
         """
         Create a new ApiKey and attach it to a user
@@ -44,18 +63,20 @@ class Apikey:
             id_=body.get('id'),
             secret=body.get('secret')
         )
-        resp.body = key
+        resp_dict = key.json
+        resp_dict['secret'] = key.fields.secret
+        resp.body = resp_dict
         return True
 
     def on_put(self, req, resp, userid, apikeyid):
+        user = models.user.user.User.get(userid)
         key = models.user.apikey.ApiKey.get(apikeyid)
+        if user is None:
+            raise Exception('User not found')
         if not key:
             raise Exception('ApiKey not found')
-        
         body = req.context['body']
-        
-        mod_apikey = models.user.apikey.ApiKey.edit_apikey(key, **body)
-        resp.body = mod_apikey
+        key.update_model(body)
         resp.body = key
         return True
 
@@ -70,11 +91,13 @@ class Apikey:
         :param userid:
         :return:
         """
+        user = models.user.user.User.get(userid)
         key = models.user.apikey.ApiKey.get(apikeyid)
+        if user is None:
+            raise Exception('User not found')
         if not key:
             raise Exception('ApiKey not found')
-        key['status'] = 'DELETED'
-        key.save()
-    
-        resp.body = key
+        
+        key.delete()
+        resp.body = True
         return True

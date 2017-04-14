@@ -29,10 +29,11 @@ class ApiKey(Model):
         Returns this object as a JSON object
         """
         return {
-            'id': self.fields.id,
-            'name': self.fields.name,
-            'description': self.fields.description,
-            'href': '/api/user/apikey/{}'.format(self.fields.id)
+            'id': self['id'],
+            'name': self.get('name'),
+            'description': self.get('description'),
+            'status': self.get('status'),
+            'href': '/api/users/user/{}/apikey/{}'.format(self['user']['id'], self.fields.id)
         }
 
     @staticmethod
@@ -50,9 +51,9 @@ class ApiKey(Model):
             raise Exception("You must have a valid user to create an ApiKey")
         
         ph = PasswordHasher()
-        if not id_:
+        if not id_ or not id_.strip():
             id_ = ApiKey.generate_25_char_id()
-        if not secret:
+        if not secret or not secret.strip():
             secret = base64.b64encode(str(uuid.uuid4()))
         
         secret_hash = ph.hash(secret)
@@ -74,10 +75,9 @@ class ApiKey(Model):
 
         :return:
         """
-        if updates is None:
+        if not updates:
             return
         
-        updates.pop('created_at', None)
         for k, v in updates.items():
             if k in ('name', 'description', 'status'):
                 self[k] = v

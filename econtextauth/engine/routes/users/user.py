@@ -44,17 +44,22 @@ class User:
         :return:
         """
         body = req.context['body']
-        new_user = models.user.user.User.create_new(
-            email=body['email'],
-            password=body['password'],
-            applications=body['applications'],
-            name=body.get('name'),
-            custom_data=body.get('custom_data'),
-            status=body.get('status', 'UNVERIFIED'),
-            id_=body.get('id'),
-            username=body.get('username', body['email']),
-            groups=body.get('groups')
-        )
+        try:
+            new_user = models.user.user.User.create_new(
+                email=body['email'],
+                password=body['password'],
+                applications=body['applications'],
+                name=body.get('name'),
+                custom_data=body.get('custom_data'),
+                status=body.get('status', 'UNVERIFIED'),
+                id_=body.get('id'),
+                username=body.get('username', body['email']),
+                groups=body.get('groups')
+            )
+        except KeyError as e:
+            raise Exception("Missing required field: {}".format(e.message))
+        except Exception as e:
+            raise e
         
         resp.body = new_user
         return True
@@ -71,7 +76,6 @@ class User:
         user = models.user.user.User.get(userid)
         if user is None:
             raise Exception('User not found')
-        
         resp.body = user
         return True
 
