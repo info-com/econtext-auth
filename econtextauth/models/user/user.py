@@ -7,20 +7,19 @@ id
 email
 password (hashed)
 name
-href
-status (ENABLED|DISABLED)
-customData (a JSON object)
-createdAt (2017-02-10T21:32:18.042Z)
-modifiedAt (2017-02-10T21:32:18.042Z)
-passwordModifiedAt (2017-02-10T21:32:18.042Z)
+status (ENABLED|UNVERIFIED|DISABLED)
+custom_data (a JSON object)
+created_at (2017-02-10T21:32:18.042Z)
+modified_at (2017-02-10T21:32:18.042Z)
+password_modified_at (2017-02-10T21:32:18.042Z)
 
 """
-import rethinkdb as r
-from remodel.models import Model
-from argon2 import PasswordHasher
 import logging
+from remodel.models import Model, before_save
+from argon2 import PasswordHasher
 from validate_email import validate_email
-
+from econtextauth.models import application, group
+from rethinkdb import now
 log = logging.getLogger('econtext')
 
 
@@ -34,113 +33,118 @@ class User(Model):
         Returns this object as a JSON object
         """
         return {  # base user data
-            'id': self.fields.id, 'name': self.fields.name, 'email': self.fields.email,
-            'customData': self.fields.customData, 'href': '/api/users/user/{}'.format(self.fields.id),
+            'id': self.get('id'),
+            'name': self.get('name'),
+            'email': self.get('email'),
+            'username': self.get('username'),
+            'custom_data': self.get('custom_data'),
+            'href': '/api/users/user/{}'.format(self.get('id')),
+            'created_at': str(self.get('created_at') or ''),
+            'modified_at': str(self.get('modified_at') or ''),
             
             # Extra relations
-            'api_keys': list(self.fields.api_keys.all()), 'groups': self.show_ids(list(self.fields.groups.all())),
-            'applications': self.show_ids(list(self.fields.applications.all()))}
-    
-    def __init__(self, *args, **kwargs):
-        super(User, self).__init__(**kwargs)
+            'api_keys': [api_key.fields.id for api_key in self.fields.api_keys.all()],
+            'applications': [application.fields.id for application in self.fields.applications.all()],
+            'groups': [group.fields.id for group in self.fields.groups.all()]
+        }
     
     @staticmethod
-    def create_new(email, password, name=None, custom_data=None, password_modified_at=None, *args, **kwargs):
+    def create_new(email, password, applications, name=None, custom_data=None, status='UNVERIFIED', id_=None, username=None, groups=None, *args, **kwargs):
         """
         Create a new User object
         
-        @todo -- All new users need to be associated with an Application
         @todo -- We can create password policies associated with an Application and enforce those here
-        @todo -- Check that an email address is actually an email address (https://pypi.python.org/pypi/validate_email)
+        """
+        email = User.check_email(email)
+        password = User.check_password(password)
+        apps = User.check_applications(applications)
+        grps = User.check_groups(groups)
+        created_at = now()
+        password_modified_at = now()
         
-        :param email:
-        :param password:
-        :param name:
-        :param customData:
-        :param status:
-        :param passwordModifiedAt:
-        :param args:
-        :param kwargs:
+        user = User(
+            email=email,
+            password=password,
+            name=name,
+            custom_data=custom_data,
+            status=status,
+            username=username,
+            created_at=created_at,
+            password_modified_at=password_modified_at
+        )
+        if id_ and id_.strip() != '':
+            if User.id_already_exists(id_):
+                raise Exception("A User with that id already exists")
+            user.fields.id = id_
+        
+        user.save()
+        # Add in connected applications and groups
+        for app in apps.values():
+            user['applications'].add(app)
+        for grp in grps.values():
+            user['groups'].add(grp)
+        user.save()
+        return user
+    
+    def update_model(self, updates=None):
+        """
+        Updates a User
+        
         :return:
         """
-        if User.already_exists(email):
-            raise Exception("A user with that email address already exists")
-        if not validate_email(email):
-            raise Exception("Enter a valid email address")
-        ph = PasswordHasher()
-        if len(password.strip()) < 6:
-            raise Exception("Password must be at least 7 characters long")
-        password = ph.hash(password.strip())
-        created_at = r.now()
-        modified_at = r.now()
+        if updates is None:
+            return
         
-        password_modified_at = password_modified_at or r.now()
-        # log.debug('typeof name: ',type(name))
-        # assert (type(name) is str ), "name is not string type!"
-        # assert isinstance(name, str)
+        updates.pop('created_at', None)
+        if updates.get('email') and updates['email'] != self.fields.email:
+            self.fields.email = User.check_email(updates.pop('email'))
         
+        if updates.get('password'):
+            self.fields.password = User.check_password(updates.pop('password'))
+            self.fields.password_modified_at = now()
         
-        status = "ENABLED"
-        u = User(email=email, password=password, name=name, customData=custom_data, status=status, createdAt=created_at,
-                 modifiedAt=modified_at, passwordModifiedAt=password_modified_at)
+        if updates.get('applications'):
+            apps = User.check_applications(updates.pop('applications'))
+            for app in apps.values():
+                self['applications'].add(app)
         
-        u.save()
-        return u
+        if updates.get('groups'):
+            grps = User.check_groups(updates.pop('groups'))
+            for grp in grps.values():
+                self['groups'].add(grp)
+        
+        for k, v in updates.items():
+            if k in ('name', 'custom_data', 'status'):
+                self[k] = v
+        
+        self.save()
+        return self
     
-    @staticmethod
-    def save_user(update_user, email=None, name=None, password=None, status=None, customData=None, **kwargs):
+    @before_save
+    def update_modification_time(self):
         """
-        Saves a new User object
+        Update the modified_at parameter whenever we save
         
-        @todo -- All new users need to be associated with an Application
-        @todo -- We can create password policies associated with an Application and enforce those here
-        @todo -- Check that an email address is actually an email address (https://pypi.python.org/pypi/validate_email)
-        
-        :param email:
-        :param password:
-        :param name:
-        :param customData:
-        :param status:
-        :param passwordModifiedAt:
-        :param args:
-        :param kwargs:
         :return:
         """
-        if kwargs is not None:
-            u = update_user
-            log.debug(name)
-            log.debug(email)
-            log.debug(password)
-            
-            if email != None:
-                if email != u['email']:
-                    if User.already_exists(email):
-                        raise Exception("A user with that email address already exists")
-                    if not validate_email(email):
-                        raise Exception("Enter a valid email address")
-                    u['email'] = email
-            
-            if password != None:
-                
-                if len(password.strip()) < 6:
-                    raise Exception("Password must be at least 7 characters long")
-                ph = PasswordHasher()
-                u['password'] = ph.hash(password.strip())
-            
-            if name != None:
-                u['name'] = name
-            if status != None:
-                u['status'] = status
-            if customData != None:
-                u['customData'] = customData
-            
-            u.save()
-            return u
+        self.fields.modified_at = now()
+        return True
     
     @staticmethod
-    def already_exists(email):
+    def id_already_exists(id_):
         """
-        Check to see if a record exists already with this email address
+        Check to see if a record already exists with this id
+        :param id:
+        :return:
+        """
+        if User.get(id_):
+            return True
+        return False
+    
+    @staticmethod
+    def email_already_exists(email):
+        """
+        Check to see if a record already exists with this email
         :param email:
         :return boolean:
         """
@@ -149,12 +153,42 @@ class User(Model):
         return False
     
     @staticmethod
-    def valid_email(email):
-        return validate_email(email)
+    def check_email(email):
+        email = email.lower().strip()
+        if User.email_already_exists(email):
+            raise Exception("A user with that email address already exists")
+        if not validate_email(email):
+            raise Exception("Invalid email address")
+        return email
     
     @staticmethod
-    def show_ids(idlist):
-        returnidlist = []
-        for ap in idlist:
-            returnidlist.append(ap.fields.id)
-        return returnidlist
+    def check_password(password):
+        ph = PasswordHasher()
+        if len(password.strip()) < 8:
+            raise Exception("Password must be at least 7 characters long")
+        return ph.hash(password.strip())
+    
+    @staticmethod
+    def check_applications(applications):
+        if not isinstance(applications, list):
+            raise Exception("Expecting a list of application ids")
+        apps = {}
+        for app_id in applications:
+            app = application.application.Application.get(app_id)
+            if not app:
+                raise Exception("Couldn't find application {}".format(app_id))
+            apps[app_id] = app
+        return apps
+    
+    @staticmethod
+    def check_groups(groups):
+        grps = {}
+        if groups:
+            if not isinstance(applications, list):
+                raise Exception("Expecting a list of application ids")
+            for grp_id in groups:
+                grp = group.group.Group.get(grp_id)
+                if not grp:
+                    raise Exception("Couldn't find group {}".format(grp_id))
+                grps[grp_id] = grp
+        return grps

@@ -11,8 +11,8 @@ createdAt
 modifiedAt
 customData
 """
-from remodel.models import Model
-import rethinkdb as r
+from remodel.models import Model, before_save
+from rethinkdb import now
 import logging
 log = logging.getLogger('econtext')
 
@@ -25,98 +25,96 @@ class Application(Model):
         u"""
         Returns this object as a JSON object
         """
-        mydict = self.fields.as_dict()
-        mydict['href'] = '/api/applications/application/{}'.format(self.fields.id)
-        return mydict
-    
-    def __init__(self, name=None, description=None, status=None, createdAt=None, modifiedAt=None, customData=None,
-                 *args, **kwargs):
-        createdAt = createdAt or r.now()
-        modifiedAt = modifiedAt or r.now()
-        super(Application, self).__init__(name=name, description=description, status=status, createdAt=createdAt,
-                                          modifiedAt=modifiedAt, customData=customData)
+        return {
+            'id': self.fields.id,
+            'name': self.get('name'),
+            'description': self.get('description'),
+            'custom_data': self.get('custom_data'),
+            'status': self.get('status'),
+            'created_at': str(self.get('created_at') or ''),
+            'modified_at': str(self.get('modified_at') or ''),
+            'href': '/api/applications/application/{}'.format(self.fields.id)
+        }
     
     @staticmethod
-    def create_new(name, description=None, customData=None, *args,
-                   **kwargs):
+    def create_new(name, description=None, status='ENABLED', custom_data=None, id_=None, *args, **kwargs):
         """
-        Create a new Apllication object
-
-
-        :param name:
-        :param description:
-        :param status:
-        :param createdAt:
-        :param modifiedAt:
-        :param customData:
-        :param args:
-        :param kwargs:
-        :return:
+        Create a new Application object
         """
-        if Application.already_exists(name):
+        if not name:
+            raise Exception("An Application must have a name")
+        if Application.already_exists(name.strip()):
             raise Exception("An application with that name already exists")
-        if Application.empty_req_param(name):
-            raise Exception("A name is required for applicaitons")
-        status = "ENABLED"
-        createdAt = r.now()
-        modifiedAt = r.now()
         
-        b = Application(name=name, customData=customData, description=description, status=status, createdAt=createdAt,
-                        modifiedAt=modifiedAt)
-        b.save()
-        return b
+        created_at = now()
+        
+        app = Application(
+            name=name.strip(),
+            description=description,
+            custom_data=custom_data,
+            status=status,
+            created_at=created_at
+        )
+        
+        if id_ and id_.strip() != '':
+            if Application.id_already_exists(id_):
+                raise Exception("An Application with that id already exists")
+            app['id'] = id_
+        
+        app.save()
+        return app
 
-    @staticmethod
-    def save_application(update_application, name=None, description=None, status=None, customData=None, **kwargs):
+    def update_model(self, updates=None):
         """
-        Saves a Group object
+        Updates an Application
 
-        :param name:
-        :param customData:
-        :param status:
-        :param description:
-        :param args:
-        :param kwargs:
         :return:
         """
-        if kwargs is not None:
-            a = update_application
-            log.debug(name)
-            log.debug(description)
-            log.debug(status)
+        if updates is None:
+            return
         
-            if name != None and (name != a['name']):
-            
-                if Application.empty_req_param(name):
-                    raise Exception('A name is required for applications')
-                if Application.already_exists(name):
-                    raise Exception("An application with that name already exists")
-                a['name'] = name
+        if 'name' in updates:
+            if Application.already_exists(updates.get('name').strip()):
+                raise Exception("An application with that name already exists")
+            updates['name'] = updates['name'].strip()
         
-            if description != None:
-                a['description'] = description
+        updates.pop('created_at', None)
+        for k, v in updates.items():
+            if k in ('name', 'description', 'status', 'custom_data'):
+                self[k] = v
         
-            if status != None:
-                a['status'] = status
-            if customData != None:
-                a['customData'] = customData
+        self.save()
+        return self
+    
+    @before_save
+    def update_modification_time(self):
+        """
+        Update the modified_at parameter whenever we save
         
-            a.save()
-            return a
-
+        :return:
+        """
+        self['modified_at'] = now()
+        return True
+    
     @staticmethod
-    def already_exists(applciation_name):
+    def id_already_exists(id_):
         """
-        Check to see if a record exists already with this applicaiton name
-        :param applciation_name:
-        :return boolean:
+        Check to see if a record already exists with this id
+        :param id:
+        :return:
         """
-        if Application.get(name=applciation_name):
+        if Application.get(id_):
             return True
         return False
     
     @staticmethod
-    def empty_req_param(req_param):
-        if req_param == '' or req_param == None:
+    def already_exists(name):
+        """
+        Check to see if a record exists already with this application name
+        
+        :param name:
+        :return boolean:
+        """
+        if Application.get(name=name):
             return True
         return False

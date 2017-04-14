@@ -18,6 +18,11 @@ configuration file to point the appropriate location.
 On a production machine, you should use init.d or system scripts to start and stop the server daemon on startup and
 be able to control logging, etc.
 
+There is a bug in remodel which is patched in my dev environment.  This bug prevents relations from being cleanly
+removed.  The easy fix here is, once remodel is installed, to edit the remodel/models.py file and move line 113 down
+below 116.
+
+
 To run:
 =======
 

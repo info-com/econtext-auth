@@ -13,7 +13,10 @@ class User:
     PUT  - Update a user
     DELETE - Remove a user (updates status to deleted - doesn't actually remove the record)
     """
-    routes = ['users/user', 'users/user/{userid}']
+    routes = [
+        'users/user',
+        'users/user/{userid}'
+    ]
     
     @staticmethod
     def get_route_constructor(*args, **kwargs):
@@ -41,25 +44,17 @@ class User:
         :return:
         """
         body = req.context['body']
-        application_id = body.get('applicationId')
-        log.debug(application_id)
-        if not application_id:
-            resp.body = 'No applicationId provided'
-            return False
-        user_application = models.application.application.Application.get(application_id)
-        
-        log.debug(user_application)
-        
-        if user_application:
-            new_user = models.user.user.User.create_new(body['email'], body['password'])
-            new_user["applications"].add(user_application)
-            user_application["users"].add(new_user)
-        else:
-            resp.body = "Invalid application ID!"
-            return False
-        # print user_application["users"].count()
-        # print list(user_application["users"].all())
-        # print new_user["applications"].count()
+        new_user = models.user.user.User.create_new(
+            email=body['email'],
+            password=body['password'],
+            applications=body['applications'],
+            name=body.get('name'),
+            custom_data=body.get('custom_data'),
+            status=body.get('status', 'UNVERIFIED'),
+            id_=body.get('id'),
+            username=body.get('username', body['email']),
+            groups=body.get('groups')
+        )
         
         resp.body = new_user
         return True
@@ -73,42 +68,12 @@ class User:
         :param userid:
         :return:
         """
-        new_user = models.user.user.User.get(userid)
-        # pprint(vars(new_user))
-        resp.body = new_user
+        user = models.user.user.User.get(userid)
+        if user is None:
+            raise Exception('User not found')
+        
+        resp.body = user
         return True
-    
-    # def on_put(self, req, resp, userid):
-    #     """
-    #     Update a user specified by the userid
-    #
-    #     This function should receive (key, value) pairs to update.
-    #     Ultimately, the user should be retrieved, changed fields
-    #     verified, and then those changed fields should be updated in
-    #     the database
-    #
-    #     :param req:
-    #     :param resp:
-    #     :param userid:
-    #     :return:
-    #
-    #
-    #
-    #     """
-    #
-    #     userid = userid or None
-    #     body = req.context['body']
-    #     update_user = models.user.user.User.get(userid)
-    #
-    #     for k in body:
-    #         update_user[k] = body[k]
-    #         log.debug(update_user[k], body[k])
-    #
-    #     update_user.save()
-    #     log.debug(update_user)
-    #     resp.body = update_user
-    #     return True
-
 
     def on_put(self, req, resp, userid):
         """
@@ -125,19 +90,14 @@ class User:
         :return:
 
         """
-    
-        userid = userid or None
         body = req.context['body']
-        update_user = models.user.user.User.get(userid)
-        if update_user is None:
-            raise Exception ('UserId not found!')
-        update_user.save_user(update_user, **body)
-    
-
-        log.debug(update_user)
-        resp.body = update_user
+        user = models.user.user.User.get(userid)
+        if user is None:
+            raise Exception('User not found')
+        
+        user.update_model(body)
+        resp.body = user
         return True
-    
     
     def on_delete(self, req, resp, userid):
         """
@@ -150,11 +110,9 @@ class User:
         :param userid:
         :return:
         """
-        
-        userid = userid or None
-        delete_user = models.user.user.User.get(userid)
-        delete_user["status"] = "DELETED"
-        delete_user.save()
-        
-        resp.body = delete_user
+        user = models.user.user.User.get(userid)
+        if not user:
+            raise Exception('User not found')
+        user.delete()
+        resp.body = True
         return True

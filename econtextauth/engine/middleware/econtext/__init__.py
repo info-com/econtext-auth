@@ -13,14 +13,18 @@ class eContextError(HTTPError):
 
 
 def exception_handler(ex, req, resp, params):
+    log.debug("exception_handler")
     if isinstance(ex, falcon.HTTPError):
         "If the error is explicitly a falcon error, return it as is"
+        resp.context['exception'] = ex
         raise ex
 
-    status = falcon.HTTP_400
+    status = falcon.HTTP_500
     title = str(ex)
     description = traceback.format_exc()
-    raise eContextError(status, title, description)
+    exception = eContextError(status, title, description)
+    resp.context['exception'] = exception
+    raise exception
 
 
 def error_serializer(req, resp, exception):
@@ -29,9 +33,11 @@ def error_serializer(req, resp, exception):
     want.  The response body itself should be serialized in our middleware.
 
     @see econtext.engine.middleware.econtext.econtext
+    :type resp: falcon.Response
+    
     """
     log.debug("error_serializer")
     resp.body = {"error": exception.to_dict()}
     log.debug(resp.body)
     if isinstance(exception, falcon.HTTPUnauthorized):
-        resp.body = json.dumps(resp.body)
+        resp.body = json.dumps(resp.body).encode("utf-8")

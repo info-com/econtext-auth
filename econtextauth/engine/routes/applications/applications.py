@@ -4,7 +4,6 @@ from econtextauth.models.application import application
 log = logging.getLogger('econtext')
 
 
-
 class Applications:
     """
        Applications
@@ -12,7 +11,7 @@ class Applications:
        GET  - Retrieve all Applications
 
     """
-    routes = ['applications/applications']
+    routes = ['applications']
     
     def __init__(self, econtext):
         self.econtext = econtext
@@ -29,7 +28,6 @@ class Applications:
         :param resp:
         :return:
         """
-        show_table = list(application.Application.all())
-        log.debug(show_table)
-        resp.body = show_table
+        applications = list(application.Application.all())
+        resp.body = applications
         return True

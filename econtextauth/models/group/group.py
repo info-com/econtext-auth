@@ -11,116 +11,129 @@ createdAt
 modifiedAt
 customData
 """
-from remodel.models import Model
-import rethinkdb as r
+from remodel.models import Model, before_save
+from rethinkdb import now
+from econtextauth.models.application import application
 import logging
 log = logging.getLogger('econtext')
 
+
 class Group(Model):
-    has_and_belongs_to_many = ("User", "Application")
+    has_many = ("User",)
+    belongs_to = ("Application", )
 
     @property
     def json(self):
         u"""
         Returns this object as a JSON object
         """
-        mydict=self.fields.as_dict()
-        mydict['href']='/api/groups/group/{}'.format(self.fields.id)
-        
-        return mydict
-
-    def __init__(self, name=None, description=None, status=None, createdAt=None, modifiedAt=None, customData=None,
-                 *args, **kwargs):
-        createdAt = createdAt or r.now()
-        modifiedAt = modifiedAt or r.now()
-        status = status or 'ENABLED'
-        super(Group, self).__init__(name=name, description=description, status=status, createdAt=createdAt,
-                                    modifiedAt=modifiedAt, customData=customData)
-
+        return {
+            'id': self.fields.id,
+            'name': self.get('name'),
+            'description': self.get('description'),
+            'status': self.get('status'),
+            'custom_data': self.get('custom_data'),
+            'created_at': str(self.get('created_at', '')),
+            'modified_at': str(self.get('modified_at', '')),
+            'application': self['application']['id'],
+            'href': '/api/groups/group/{}'.format(self.fields.id)
+        }
+    
     @staticmethod
-    def create_new(name, description=None, customData=None, *args,
-                   **kwargs):
+    def create_new(name, description=None, status='ENABLED', custom_data=None, application=None, id_=None, *args, **kwargs):
         """
         Create a new Group object
+        """
+        if not name:
+            raise Exception("A Group must have a name")
+        
+        created_at = now()
+        app = Group.check_application(application)
+        
+        grp = Group(
+            name=name.strip(),
+            description=description,
+            custom_data=custom_data,
+            status=status,
+            created_at=created_at
+        )
+        if id_ and id_.strip() != '':
+            if Group.id_already_exists(id_):
+                raise Exception("A Group with that id already exists")
+            grp['id'] = id_
+        
+        if grp.already_exists(name.strip(), app):
+            raise Exception("A Group with that name already exists")
+        
+        grp.save()
+        # Add in connected applications
+        grp['application'] = app
+        grp.save()
+        return grp
 
+    def update_model(self, updates=None):
+        """
+        Updates a Group
 
-        :param name:
-        :param customData:
-        :param description:
-        :param status:
-        :param createdAt:
-        :param modifiedAt:
-        :param args:
-        :param kwargs:
         :return:
         """
-
-        status="ENABLED"
-        createdAt = r.now()
-        modifiedAt = r.now()
-        if Group.empty_req_param(name):
-            raise Exception('A name is required for groups')
-        if Group.already_exists(name):
-            raise Exception("A group with that name address already exists")
-        g = Group(name=name, customData=customData, description=description, status=status, createdAt=createdAt,
-                  modifiedAt=modifiedAt)
-        g.save()
-        return g
-
+        if updates is None:
+            return
+        
+        if 'name' in updates:
+            if self.already_exists(updates.get('name').strip()):
+                raise Exception("A Group with that name already exists")
+            updates['name'] = updates['name'].strip()
+        
+        updates.pop('created_at', None)
+        for k, v in updates.items():
+            if k in ('name', 'description', 'status', 'custom_data'):
+                self[k] = v
+        
+        self.save()
+        return self
+    
     @staticmethod
-    def save_group(update_group, name=None, description=None, status=None, customData=None, **kwargs):
+    def check_application(app_id):
+        app = application.Application.get(app_id)
+        if not app:
+            raise Exception("Couldn't find application {}".format(app_id))
+        return app
+    
+    @before_save
+    def update_modification_time(self):
         """
-        Saves a Group object
+        Update the modified_at parameter whenever we save
 
-        :param name:
-        :param customData:
-        :param status:
-        :param description:
-        :param args:
-        :param kwargs:
         :return:
         """
-        if kwargs is not None:
-            g = update_group
-            log.debug(name)
-            log.debug(description)
-            log.debug(status)
-        
-            if name != None and (name != g['name']):
-                
-                if Group.empty_req_param(name):
-                    raise Exception('A name is required for groups')
-                if Group.already_exists(name):
-                    raise Exception("A group with that name address already exists")
-                g['name']=name
-        
-            if description != None:
-                g['description'] = description
-        
-
-            if status != None:
-                g['status'] = status
-            if customData != None:
-                g['customData'] = customData
-        
-            g.save()
-            return g
-
-
+        self.fields.modified_at = now()
+        return True
+    
     @staticmethod
-    def already_exists(group_name):
+    def id_already_exists(id_):
         """
-        Check to see if a record exists already with this applicaiton name
-        :param applciation_name:
-        :return boolean:
+        Check to see if a record already exists with this id
+        :param id_:
+        :return:
         """
-        if Group.get(name=group_name):
+        if Group.get(id_):
             return True
         return False
     
-    @staticmethod
-    def empty_req_param(req_param):
-        if req_param == '' or req_param == None:
-            return True
-        return False
+    def already_exists(self, group_name, app=None):
+        """
+        Check to see whether another group already exists in the same
+        application with the same name
         
+        :param group_name:
+        :return boolean:
+        """
+        if not app:
+            app = self['application']
+        for grp in Group.filter(name=group_name.strip()):
+            if grp['id'] == self.get('id'):
+                continue
+            if grp['application']['id'] == app['id']:
+                return True
+        return False

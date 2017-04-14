@@ -4,16 +4,13 @@ from econtextauth.models.group import group
 log = logging.getLogger('econtext')
 
 
-
 class Groups:
+    """
+    Groups
     
+    GET  - Retrieve all groups
     """
-       Groups
-
-       GET  - Retrieve all groups
-
-    """
-    routes = ['groups/groups']
+    routes = ['groups']
     
     def __init__(self, econtext):
         self.econtext = econtext
@@ -30,8 +27,7 @@ class Groups:
         :param resp:
         :return:
         """
-        show_table = list(group.Group.all())
-        log.debug(show_table)
-        resp.body = show_table
+        groups = list(group.Group.all())
+        resp.body = groups
         return True
 

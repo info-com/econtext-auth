@@ -16,13 +16,15 @@ setup(
     data_files=data_files,
     install_requires=[
         'requests',
-        'falcon',
+        'falcon >= 1.1',
         'gevent',
         'gunicorn',
         'rethinkdb',
         'remodel',
         'argon2_cffi',
-        'validate_email'
+        'validate_email',
+        'basicauth',
+        'python-dateutil'
     ],
     
     entry_points={
