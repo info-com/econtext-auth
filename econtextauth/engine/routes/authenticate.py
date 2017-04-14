@@ -61,74 +61,39 @@ class Authenticate:
         """
         body = req.context['body']
         
-        #THIS IS REPEATING CODE, MOVE TO FUNCTION
-        if body['type'] == 'username':
-            try:
-                u = User.get(email=body['credential']['email'])
-            except KeyError:
-                log.debug("keyerror")
-                resp.body = "FAIL"
-                return False
-            if u:
-                if u.fields.status == "DISABLED":
-                    resp.body = "DISABLED"
-                    return False
-                if u.fields.status == "DELETED":
-                    resp.body = "DELETED"
-                    return False
-
-                
-                if self.checkPass(u.fields.password,body['credential']['password'].strip()):
-                    application_list = list(u.fields.applications.all())
-                    if self.checkForApplication(application_list,body['application']):
-                        resp.body = "SUCESS"
-                        return True
+        try:
+            hashed_password = None
+            u = None
             
-
-        # THIS IS REPEATING CODE, MOVE TO FUNCTION  ^^^
-        if body['type'] == "apikey":
-            try:
-                a=ApiKey.get(body['credential']['secretId'])
-            except KeyError:
-                resp.body = "FAIL"
-                return False
-            if a:
-                if a.fields.status == "DISABLED":
-                    resp.body = "DISABLED"
-                    return False
-                if a.fields.status == "DELETED":
-                    resp.body = "DELETED"
-                    return False
-                
-                log.debug("checking apps")
-                if self.checkPass(body['credential']['secret'],a.fields.secret ):
-                    application_list = list(a.fields.applications.all())
-                    if self.checkForApplication(application_list,body['application']):
-                        resp.body = "SUCESS"
-                        return True
-
-        resp.body= "FAIL"
-        return False
+            if body['type'] == 'username':
+                u = User.get(email=body['credential']['username'])
+                hashed_password = u.fields.password
+            
+            elif body['type'] == "apikey":
+                a = ApiKey.get(body['credential']['username'])
+                hashed_password = a.fields.secret
+                u = a.fields.user
+            
+            applications = set([app.fields.id for app in u.fields.applications.all()])
+            if not Authenticate.check_pass(hashed_password, body['credential']['password']):
+                raise Exception()
+            if body['application'] not in applications:
+                raise Exception()
+            
+            resp.body = True
+        except Exception as e:
+            log.exception(e)
+            resp.body = False
         
-
-
+        return True
+        
     @staticmethod
-    def checkPass(dbpass,bodytext):
+    def check_pass(hashed_password, unhashed_password):
+        if not hashed_password or not unhashed_password.strip():
+            return False
         ph = PasswordHasher()
         try:
-            ph.verify(dbpass,bodytext)
+            ph.verify(hashed_password, unhashed_password)
         except:
-            log.debug('verify failed..')
             return False
-        else:
-            log.debug('password matched')
-            return True
-        
-    @staticmethod
-    def checkForApplication(applist, appid):
-        for apps in applist:
-            if appid == apps.fields.id:
-                return True
-        return False
-    
-   
+        return True

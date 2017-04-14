@@ -10,14 +10,14 @@ name
 description
 
 """
-import rethinkdb as r
-from remodel.models import Model
 import uuid
+import random
 import base64
-from argon2 import PasswordHasher
 import logging
-log=logging.getLogger('econtext')
-
+from remodel.models import Model, before_save
+from rethinkdb import now
+from argon2 import PasswordHasher
+log = logging.getLogger('econtext')
 
 
 class ApiKey(Model):
@@ -35,83 +35,71 @@ class ApiKey(Model):
             'href': '/api/user/apikey/{}'.format(self.fields.id)
         }
 
-    def __init__(self, name=None, secret=None, status=None, description=None, createdAt=None, *args, **kwargs):
-        createdAt = createdAt or r.now()
-        super(ApiKey, self).__init__(name=name, secret=secret, status=status, createdAt=createdAt,
-                                     description=description)
-
     @staticmethod
-    def create_new(name=None, description=None, createdAt=None, modifiedAt=None, *args, **kwargs):
+    def create_new(user, name=None, description=None, status=None, id_=None, secret=None, *args, **kwargs):
         """
         Create a new ApiKey object
-
-        @todo -- All new APIKEYS need to be associated with an User
-
-
         
-        :param secret:
-        :param name:
-        :param description:
-        :param status:
-        :param createdAt:
-        :param modifiedAt:
-        :param args:
-        :param kwargs:
+        The return object contains a plaintext version of the secret.
+        This is the last time that you can see the unhashed version, so
+        please be sure to save it somewhere.
+        
         :return:
         """
-
-        secret_uuid = base64.b64encode(str(uuid.uuid1()))
-        ph=PasswordHasher()
-        secret = ph.hash(secret_uuid)
-        createdAt = createdAt or r.now()
-        modifiedAt = modifiedAt or r.now()
-        status = 'ENABLED'
-        a = ApiKey(name=name, secret=secret, description=description, status=status, createdAt=createdAt,
-                   modifiedAt=modifiedAt)
+        if not user:
+            raise Exception("You must have a valid user to create an ApiKey")
+        
+        ph = PasswordHasher()
+        if not id_:
+            id_ = ApiKey.generate_25_char_id()
+        if not secret:
+            secret = base64.b64encode(str(uuid.uuid4()))
+        
+        secret_hash = ph.hash(secret)
+        created_at = now()
+        status = status or 'ENABLED'
+        a = ApiKey(id=id_, name=name, description=description, secret=secret_hash, status=status, created_at=created_at)
         a.save()
+        
+        # Save the API Key to the user
+        user['api_keys'].add(a)
+        user.save()
+        
+        a['secret'] = secret
         return a
 
-
-    @staticmethod
-    def edit_apikey(update_apikey,name=None,description=None,status=None,customData=None, *args, **kwargs):
-        if kwargs is not None:
-            ap = update_apikey
-            log.debug(name)
-            log.debug(description)
-            log.debug(status)
-        
-            if name != None and (name != ap['name']):
-            
-                if ApiKey.empty_req_param(name):
-                    raise Exception('A name is required for apikey')
-                if ApiKey.already_exists(name):
-                    raise Exception("An apikey with that name address already exists")
-                ap['name'] = name
-        
-            if description != None:
-                ap['description'] = description
-        
-            if status != None:
-                ap['status'] = status
-            if customData != None:
-                ap['customData'] = customData
-        
-            ap.save()
-            return ap
-
-    @staticmethod
-    def already_exists(apikey_name):
+    def update_model(self, updates=None):
         """
-        Check to see if a record exists already with this applicaiton name
-        :param applciation_name:
-        :return boolean:
-        """
-        if ApiKey.get(name=apikey_name):
-            return True
-        return False
+        Updates a User
 
+        :return:
+        """
+        if updates is None:
+            return
+        
+        updates.pop('created_at', None)
+        for k, v in updates.items():
+            if k in ('name', 'description', 'status'):
+                self[k] = v
+        self.save()
+    
+    @before_save
+    def update_modification_time(self):
+        """
+        Update the modified_at parameter whenever we save
+
+        :return:
+        """
+        self.fields.modified_at = now()
+        return True
+    
     @staticmethod
-    def empty_req_param(req_param):
-        if req_param == '' or req_param == None:
-            return True
-        return False
+    def generate_25_char_id():
+        x = 0
+        while True:
+            api_id = ''.join(random.choice('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ') for n in xrange(25))
+            if not ApiKey.get(api_id):
+                return api_id
+            x += 1
+            if x > 10:
+                raise Exception("Couldn't generate a unique apikey id in 10 tries.  Please try again")

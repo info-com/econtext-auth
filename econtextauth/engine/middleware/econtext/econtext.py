@@ -44,6 +44,7 @@ class EcontextMiddleware(object):
             resp: Response object that will be routed to
                 the on_* responder.
         """
+        log.debug("econtext.process_request")
         pass
 
     def process_resource(self, req, resp, resource, params=None, *args, **kwargs):
@@ -61,6 +62,7 @@ class EcontextMiddleware(object):
             resource: Resource object to which the request was
                 routed.
         """
+        log.debug("econtext.process_resource")
         try:
             req.context['body'] = json.loads(req.stream.read())
         except:
@@ -79,6 +81,7 @@ class EcontextMiddleware(object):
                 routed. May be None if no route was found
                 for the request.
         """
+        log.debug("econtext.process_response")
         if resource is None:
             return
 
@@ -105,5 +108,5 @@ class EcontextMiddleware(object):
             #    resp.status = falcon.HTTP_BAD_REQUEST
             #    econtext_result['error'] = "{}: {}".format(ex.title, ex.description)
 
-        resp.body = json.dumps({"econtext": econtext_result}, cls=eContextJsonEncoder)
+        resp.body = json.dumps({"econtext": econtext_result}, cls=eContextJsonEncoder).encode('utf-8')
         log.info("{} {} {}".format(req.method, resp.status, req.path))

@@ -1,7 +1,7 @@
 import logging
 import remodel.utils
 import remodel.connection
-from econtextauth import models
+from econtextauth.models.application import application
 
 log = logging.getLogger('econtext')
 
@@ -15,7 +15,10 @@ class Application:
        PUT  - Update an application
        DELETE - Remove an applciation (updates status to deleted - doesn't actually remove the record)
        """
-    routes = ['applications/application', 'applications/application/{applicationid}']
+    routes = [
+        'applications/application',
+        'applications/application/{appid}'
+    ]
     
     remodel.connection.pool.configure(db="econtext_users")
     
@@ -28,72 +31,41 @@ class Application:
     
     def on_post(self, req, resp):
         """
-        Create a new Application.
-            id
-            name
-            description
-            status
-            createdAt
-            modifiedAt
-            customData
-
-        :todo
+        Create a new Application
 
         :param req:
         :param resp:
         :return:
         """
         body = req.context['body']
-        new_application = models.application.application.Application.create_new(name=body.get('name'),
-                                                                                description=body.get('description'))
-        resp.body = new_application
+        app = application.Application.create_new(
+            name=body.get('name'),
+            description=body.get('description'),
+            status=body.get('status', 'ENABLED'),
+            custom_data=body.get('custom_data'),
+            id_=body.get('id')
+        )
+        resp.body = app
         return True
     
-    def on_get(self, req, resp, applicationid):
+    def on_get(self, req, resp, appid):
         """
         Retrieve an application specified by id
 
         :param req:
         :param resp:
-        :param applicationid:
+        :param appid:
         :return:
         """
-        new_application = models.application.application.Application.get(applicationid)
-        resp.body = new_application
+        app = application.Application.get(appid)
+        if app is None:
+            raise Exception('Application not found')
+        resp.body = app
         return True
-    #
-    # def on_put(self, req, resp, applicationid):
-    #     """
-    #     Update an application specified by the applicaitonid
-    #
-    #     This function should receive (key, value) pairs to update.
-    #     Ultimately, the application should be retrieved, changed fields
-    #     verified, and then those changed fields should be updated in
-    #     the database
-    #
-    #     :param req:
-    #     :param resp:
-    #     :param applicationid:
-    #     :return:
-    #     """
-    #
-    #     applicationId = applicationid or None
-    #     body = req.context['body']
-    #     update_application = models.application.application.Application.get(applicationId)
-    #     for k in body:
-    #         update_application[k] = body[k]
-    #         log.debug(update_application[k], body[k])
-    #
-    #     update_application.save()
-    #     log.debug(update_application)
-    #     resp.body = update_application
-    #     return True
-    #
 
-
-    def on_put(self, req, resp, applicationid):
+    def on_put(self, req, resp, appid):
         """
-        Update an application specified by the applicaitonid
+        Update an application specified by the appid
 
         This function should receive (key, value) pairs to update.
         Ultimately, the application should be retrieved, changed fields
@@ -102,41 +74,31 @@ class Application:
 
         :param req:
         :param resp:
-        :param applicationid:
+        :param appid:
         :return:
         """
-    
-        applicationId = applicationid or None
         body = req.context['body']
-        update_application = models.application.application.Application.get(applicationId)
-        if update_application is None:
-            raise Exception('ApplicationId not found!')
-
-        update_application.save_application(update_application, **body)
-        # for k in body:
-        #     update_application[k] = body[k]
-        #     log.debug(update_application[k], body[k])
-        #
-        
-        log.debug(update_application)
-        resp.body = update_application
+        app = application.Application.get(appid)
+        if app is None:
+            raise Exception('Application not found')
+        app.update_model(body)
+        resp.body = app
         return True
 
-    def on_delete(self, req, resp, applicationid):
+    def on_delete(self, req, resp, appid):
         """
-        Remove an application specified by the applicationId
-
-        The application specified should have the status changed to "deleted"
-
+        Remove an application specified by the appid
+        
+        @todo May not delete the main app (eContext Auth)
+        
         :param req:
         :param resp:
-        :param applicationId:
+        :param appid:
         :return:
         """
-        applicationId = applicationid or None
-        delete_application = models.application.application.Application.get(applicationId)
-        delete_application["status"] = "DELETED"
-        delete_application.save()
-        
-        resp.body = delete_application
+        app = application.Application.get(appid)
+        if app is None:
+            raise Exception('Application not found')
+        app.delete()
+        resp.body = True
         return True

@@ -8,9 +8,9 @@ class Apikey:
     """
     Search
 
+    POST - Adds new apikey to user
     PUT - updates name, desc, or status
-    POST-Adds new apikey to user
-    DELETE-REMOVES an APIKEY!
+    DELETE - REMOVES an APIKEY!
     """
     routes = [
         'users/user/{userid}/apikey',
@@ -26,39 +26,40 @@ class Apikey:
         
     def on_post(self, req, resp, userid):
         """
-        Create an APIKEY
+        Create a new ApiKey and attach it to a user
+        
         :param req:
         :param resp:
-        
+        :param userid:
         """
-
-        search_user = models.user.user.User.get(userid)
-        if not search_user:
-            raise Exception('No user found with apikey')
         body = req.context['body']
-        new_apikey = models.user.apikey.ApiKey.create_new(body.get('name'), body.get('description'))
+        user = models.user.user.User.get(userid)
+        if not user:
+            raise Exception('User not found')
         
-        search_user["api_keys"].add(new_apikey)
-        search_user.save()
-        # print search_user["api_keys"].count()
-        # print list(search_user["api_keys"].all())
-        
-        resp.body = new_apikey
+        key = models.user.apikey.ApiKey.create_new(
+            user=user,
+            name=body.get('name'),
+            description=body.get('description'),
+            id_=body.get('id'),
+            secret=body.get('secret')
+        )
+        resp.body = key
         return True
 
-
-    def on_put(self,req,resp,userid,apikeyid):
-        update_apikey = models.user.apikey.ApiKey.get(apikeyid)
-        if not update_apikey:
-            raise Exception('No apikey found')
+    def on_put(self, req, resp, userid, apikeyid):
+        key = models.user.apikey.ApiKey.get(apikeyid)
+        if not key:
+            raise Exception('ApiKey not found')
         
         body = req.context['body']
-        mod_apikey=models.user.apikey.ApiKey.edit_apikey(update_apikey,**body)
-        resp.body=mod_apikey
-        resp.body=update_apikey
+        
+        mod_apikey = models.user.apikey.ApiKey.edit_apikey(key, **body)
+        resp.body = mod_apikey
+        resp.body = key
         return True
 
-    def on_delete(self, req, resp, userid):
+    def on_delete(self, req, resp, userid, apikeyid):
         """
         Remove a user specified by the userid
 
@@ -69,11 +70,11 @@ class Apikey:
         :param userid:
         :return:
         """
+        key = models.user.apikey.ApiKey.get(apikeyid)
+        if not key:
+            raise Exception('ApiKey not found')
+        key['status'] = 'DELETED'
+        key.save()
     
-        userid = userid or None
-        delete_user = models.user.user.User.get(userid)
-        delete_user["status"] = "DISABLED"
-        delete_user.save()
-    
-        resp.body = delete_user
+        resp.body = key
         return True

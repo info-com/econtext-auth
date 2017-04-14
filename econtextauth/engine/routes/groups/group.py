@@ -1,7 +1,7 @@
 import logging
 import remodel.utils
 import remodel.connection
-from econtextauth import models
+from econtextauth.models.group import group
 
 log = logging.getLogger('econtext')
 
@@ -15,7 +15,10 @@ class Group:
        PUT  - Update a group
        DELETE - Remove a group (updates status to deleted - doesn't actually remove the record)
     """
-    routes = ['groups/group', 'groups/group/{groupid}']
+    routes = [
+        'groups/group',
+        'groups/group/{groupid}'
+    ]
     
     remodel.connection.pool.configure(db="econtext_users")
     
@@ -44,12 +47,14 @@ class Group:
         :return:
         """
         body = req.context['body']
-        # if body.get('name') and body.get('name') != '':
-        #     name = body.get('name')
-        # else:
-        #     raise Exception('Name must not be empty!')
-        
-        new_group = models.group.group.Group.create_new(body.get('name'), description=body.get('description'))
+        new_group = group.Group.create_new(
+            name=body.get('name'),
+            description=body.get('description'),
+            status=body.get('status', 'ENABLED'),
+            custom_data=body.get('custom_data'),
+            id_=body.get('id'),
+            applications=body.get('applications')
+        )
         
         resp.body = new_group
         return True
@@ -63,38 +68,12 @@ class Group:
         :param groupid:
         :return:
         """
-        get_group = models.group.group.Group.get(groupid)
-        resp.body = get_group
+        grp = group.Group.get(groupid)
+        if grp is None:
+            raise Exception('Group not found')
+        resp.body = grp
         return True
     
-    # def on_put(self, req, resp, groupid):
-    #     """
-    #     Update a group specified by the groupid
-    #
-    #     This function should receive (key, value) pairs to update.
-    #     Ultimately, the group should be retrieved, changed fields
-    #     verified, and then those changed fields should be updated in
-    #     the database
-    #
-    #     :param req:
-    #     :param resp:
-    #     :param groupid:
-    #     :return:
-    #     """
-    #     groupId = groupid or None
-    #     body = req.context['body']
-    #     update_group = models.group.group.Group.get(groupId)
-    #     for k in body:
-    #         update_group[k] = body[k]
-    #         log.debug(update_group[k], body[k])
-    #
-    #     update_group.save()
-    #     log.debug(update_group)
-    #     resp.body = update_group
-    #     return True
-    #
-
-
     def on_put(self, req, resp, groupid):
         """
         Update a group specified by the groupid
@@ -109,19 +88,14 @@ class Group:
         :param groupid:
         :return:
         """
-        groupId = groupid or None
         body = req.context['body']
-        update_group = models.group.group.Group.get(groupId)
-        if update_group is None:
-            raise Exception('GroupId not found!')
-
-        update_group.save_group(update_group, **body)
-        log.debug(update_group)
-        resp.body = update_group
+        grp = group.Group.get(groupid)
+        if grp is None:
+            raise Exception('Group not found')
+        grp.update_model(body)
+        resp.body = grp
         return True
-
-
-
+    
     def on_delete(self, req, resp, groupid):
         """
         Remove a group specified by the groupid
@@ -133,10 +107,9 @@ class Group:
         :param groupid:
         :return:
         """
-        groupId = groupid or None
-        delete_group = models.group.group.Group.get(groupId)
-        delete_group['status'] = 'DELETED'
-        delete_group.save()
-        
-        resp.body = delete_group
+        grp = group.Group.get(groupid)
+        if not grp:
+            raise Exception('Group not found')
+        grp.delete()
+        resp.body = True
         return True

@@ -8,21 +8,25 @@ from econtextauth.engine.routes import users
 from econtextauth.engine.routes import applications
 from econtextauth.engine.routes import groups
 from econtextauth.engine.routes import authenticate
+from econtextauth.engine.routes import test
 
 
 route_classes = [
     ping.Ping,
+    test.Test,
+    authenticate.Authenticate,
+    
+    applications.application.Application,
+    applications.applications.Applications,
+    applications.users.Users,
+    groups.group.Group,
+    groups.groups.Groups,
+    groups.users.Users,
     users.user.User,
     users.users.Users,
     users.apikey.Apikey,
-    users.add.Add,
-    users.delete.Delete,
-    users.search.Search,
-    groups.group.Group,
-    groups.groups.Groups,
-    authenticate.Authenticate,
-    applications.application.Application,
-    applications.applications.Applications
-
+    users.application.Application,
+    users.group.Group,
+    users.search.Search
 ]
 

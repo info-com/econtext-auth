@@ -2,5 +2,5 @@ from . import user
 from . import users
 from . import search
 from . import apikey
-from . import add
-from . import delete
+from . import application
+from . import group
