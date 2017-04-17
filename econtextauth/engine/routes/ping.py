@@ -11,5 +11,5 @@ class Ping:
         return Ping()
 
     def on_get(self, req, resp):
-        resp.body = u'pong'
+        resp.body = {"ping": u'pong'}
         return True

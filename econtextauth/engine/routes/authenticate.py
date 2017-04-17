@@ -84,10 +84,10 @@ class Authenticate:
             if body['application'] not in applications:
                 raise Exception()
             
-            resp.body = True
+            resp.body = {"authenticated": True}
         except Exception as e:
             log.exception(e)
-            resp.body = False
+            resp.body = {"authenticated": False}
         
         return True
     

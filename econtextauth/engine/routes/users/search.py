@@ -54,5 +54,5 @@ class Search:
         ])
         users.update(custom_data_users)
 
-        resp.body = list(users)
+        resp.body = {"users": list(users)}
         return True

@@ -37,7 +37,7 @@ class Application:
             raise Exception('Application not found')
         
         u['applications'].add(a)
-        resp.body = True
+        resp.body = {"application": True}
         return True
     
     def on_delete(self, req, resp, userid, appid):
@@ -58,5 +58,5 @@ class Application:
             raise Exception('Application not found')
         
         u['applications'].remove(a)
-        resp.body = True
+        resp.body = {"deleted": True}
         return True

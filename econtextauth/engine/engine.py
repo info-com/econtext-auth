@@ -110,6 +110,7 @@ def setup_app(config):
     remodel.connection.pool.configure(host=rethinkdb_host, port=rethinkdb_port, db="econtext_users")
 
     route_options = {
+        "application_id": econtext_config.get('application_id')
     }
 
     for route_class in routes.route_classes:
@@ -117,10 +118,6 @@ def setup_app(config):
             for route in route_class.routes:
                 log.info("Loading route: /api/{}".format(route))
                 app.add_route("/api/{}".format(route), route_class.get_route_constructor(route_options))
-                
-                # with r.connect(rethinkdb_host, rethinkdb_port, db='econtext_users') as conn:
-                #    bin.rethink.create_tables(conn)
-                #    bin.rethink.create_indexes(conn)
 
 
 def main():

@@ -45,7 +45,7 @@ class Application:
             custom_data=body.get('custom_data'),
             id_=body.get('id')
         )
-        resp.body = app
+        resp.body = {"application": app}
         return True
     
     def on_get(self, req, resp, appid):
@@ -60,7 +60,7 @@ class Application:
         app = application.Application.get(appid)
         if app is None:
             raise Exception('Application not found')
-        resp.body = app
+        resp.body = {"application": app}
         return True
 
     def on_put(self, req, resp, appid):
@@ -82,7 +82,7 @@ class Application:
         if app is None:
             raise Exception('Application not found')
         app.update_model(body)
-        resp.body = app
+        resp.body = {"application": app}
         return True
 
     def on_delete(self, req, resp, appid):
@@ -96,9 +96,13 @@ class Application:
         :param appid:
         :return:
         """
+        if appid == self.econtext.get('application_id'):
+            raise Exception("Cannot delete the system application")
         app = application.Application.get(appid)
         if app is None:
             raise Exception('Application not found')
+        if app.get('status') != 'DISABLED':
+            raise Exception('Application must be disabled before deletion is possible')
         app.delete()
-        resp.body = True
+        resp.body = {"deleted": True}
         return True

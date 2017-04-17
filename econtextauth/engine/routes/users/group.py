@@ -40,7 +40,7 @@ class Group:
             raise Exception('User is not a member the application {} specified by this group'.format(g['application']['id']))
         
         u['groups'].add(g)
-        resp.body = True
+        resp.body = {"group": True}
         return True
     
     def on_delete(self, req, resp, userid, groupid):
@@ -61,5 +61,5 @@ class Group:
             raise Exception('Group not found')
         
         u['groups'].remove(g)
-        resp.body = True
+        resp.body = {"deleted": True}
         return True

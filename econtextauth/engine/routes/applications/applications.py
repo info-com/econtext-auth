@@ -29,5 +29,5 @@ class Applications:
         :return:
         """
         applications = list(application.Application.all())
-        resp.body = applications
+        resp.body = {"applications": applications}
         return True

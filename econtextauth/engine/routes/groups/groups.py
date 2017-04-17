@@ -28,6 +28,6 @@ class Groups:
         :return:
         """
         groups = list(group.Group.all())
-        resp.body = groups
+        resp.body = {"groups": groups}
         return True
 

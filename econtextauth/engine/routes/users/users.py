@@ -29,5 +29,5 @@ class Users:
             :return:
         """
         users = list(user.User.all())
-        resp.body = users
+        resp.body = {"users": users}
         return True

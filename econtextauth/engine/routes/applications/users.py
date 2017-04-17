@@ -36,5 +36,5 @@ class Users:
         #query = r.table('_group_users').get_all(groupid, index='group_id').eq_join('user_id', r.table('users'),
         #                                                                           index='id').map(lambda x: x['right'])
         users = [a for a in grp.fields.users.all()]
-        resp.body = users
+        resp.body = {"users": users}
         return True

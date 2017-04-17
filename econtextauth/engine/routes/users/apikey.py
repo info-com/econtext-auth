@@ -40,7 +40,7 @@ class Apikey:
             raise Exception('User not found')
         if not key:
             raise Exception('ApiKey not found')
-        resp.body = key
+        resp.body = {"apikey": key}
         return True
     
     def on_post(self, req, resp, userid):
@@ -65,7 +65,7 @@ class Apikey:
         )
         resp_dict = key.json
         resp_dict['secret'] = key.fields.secret
-        resp.body = resp_dict
+        resp.body = {"apikey": resp_dict}
         return True
 
     def on_put(self, req, resp, userid, apikeyid):
@@ -77,7 +77,7 @@ class Apikey:
             raise Exception('ApiKey not found')
         body = req.context['body']
         key.update_model(body)
-        resp.body = key
+        resp.body = {"apikey": key}
         return True
 
     def on_delete(self, req, resp, userid, apikeyid):
@@ -97,7 +97,9 @@ class Apikey:
             raise Exception('User not found')
         if not key:
             raise Exception('ApiKey not found')
+        if key.get('status') != 'DISABLED':
+            raise Exception('ApiKey must be disabled before deletion is possible')
         
         key.delete()
-        resp.body = True
+        resp.body = {"deleted": True}
         return True

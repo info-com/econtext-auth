@@ -43,7 +43,7 @@ class User(Model):
             'modified_at': str(self.get('modified_at') or ''),
             
             # Extra relations
-            'api_keys': [api_key.fields.id for api_key in self.fields.api_keys.all()],
+            'apikeys': [api_key.fields.id for api_key in self.fields.api_keys.all()],
             'applications': [application.fields.id for application in self.fields.applications.all()],
             'groups': [group.fields.id for group in self.fields.groups.all()]
         }

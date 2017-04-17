@@ -47,7 +47,7 @@ class Group:
         :return:
         """
         body = req.context['body']
-        new_group = group.Group.create_new(
+        grp = group.Group.create_new(
             name=body.get('name'),
             description=body.get('description'),
             status=body.get('status', 'ENABLED'),
@@ -56,7 +56,7 @@ class Group:
             applications=body.get('applications')
         )
         
-        resp.body = new_group
+        resp.body = {"group": grp}
         return True
     
     def on_get(self, req, resp, groupid):
@@ -71,7 +71,7 @@ class Group:
         grp = group.Group.get(groupid)
         if grp is None:
             raise Exception('Group not found')
-        resp.body = grp
+        resp.body = {"group": grp}
         return True
     
     def on_put(self, req, resp, groupid):
@@ -93,7 +93,7 @@ class Group:
         if grp is None:
             raise Exception('Group not found')
         grp.update_model(body)
-        resp.body = grp
+        resp.body = {"group": grp}
         return True
     
     def on_delete(self, req, resp, groupid):
@@ -110,6 +110,8 @@ class Group:
         grp = group.Group.get(groupid)
         if not grp:
             raise Exception('Group not found')
+        if grp.get('status') != 'DISABLED':
+            raise Exception('Group must be disabled before deletion is possible')
         grp.delete()
-        resp.body = True
+        resp.body = {"deleted": True}
         return True

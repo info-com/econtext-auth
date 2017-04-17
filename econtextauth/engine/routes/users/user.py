@@ -45,7 +45,7 @@ class User:
         """
         body = req.context['body']
         try:
-            new_user = models.user.user.User.create_new(
+            user = models.user.user.User.create_new(
                 email=body['email'],
                 password=body['password'],
                 applications=body['applications'],
@@ -61,7 +61,7 @@ class User:
         except Exception as e:
             raise e
         
-        resp.body = new_user
+        resp.body = {"user": user}
         return True
     
     def on_get(self, req, resp, userid):
@@ -76,7 +76,7 @@ class User:
         user = models.user.user.User.get(userid)
         if user is None:
             raise Exception('User not found')
-        resp.body = user
+        resp.body = {"user": user}
         return True
 
     def on_put(self, req, resp, userid):
@@ -100,7 +100,7 @@ class User:
             raise Exception('User not found')
         
         user.update_model(body)
-        resp.body = user
+        resp.body = {"user": user}
         return True
     
     def on_delete(self, req, resp, userid):
@@ -117,6 +117,8 @@ class User:
         user = models.user.user.User.get(userid)
         if not user:
             raise Exception('User not found')
+        if user.get('status') != 'DISABLED':
+            raise Exception('User must be disabled before deletion is possible')
         user.delete()
-        resp.body = True
+        resp.body = {"deleted": True}
         return True
