@@ -1,4 +1,5 @@
 import logging
+import falcon
 from econtextauth import models
 
 log = logging.getLogger('econtext')
@@ -37,9 +38,9 @@ class Apikey:
         user = models.user.user.User.get(userid)
         key = models.user.apikey.ApiKey.get(apikeyid)
         if user is None:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         if not key:
-            raise Exception('ApiKey not found')
+            raise falcon.HTTPInvalidParam('ApiKey not found')
         resp.body = {"apikey": key}
         return True
     
@@ -54,7 +55,7 @@ class Apikey:
         body = req.context['body']
         user = models.user.user.User.get(userid)
         if not user:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         
         key = models.user.apikey.ApiKey.create_new(
             user=user,
@@ -72,9 +73,9 @@ class Apikey:
         user = models.user.user.User.get(userid)
         key = models.user.apikey.ApiKey.get(apikeyid)
         if user is None:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         if not key:
-            raise Exception('ApiKey not found')
+            raise falcon.HTTPInvalidParam('ApiKey not found')
         body = req.context['body']
         key.update_model(body)
         resp.body = {"apikey": key}
@@ -94,11 +95,11 @@ class Apikey:
         user = models.user.user.User.get(userid)
         key = models.user.apikey.ApiKey.get(apikeyid)
         if user is None:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         if not key:
-            raise Exception('ApiKey not found')
+            raise falcon.HTTPInvalidParam('ApiKey not found')
         if key.get('status') != 'DISABLED':
-            raise Exception('ApiKey must be disabled before deletion is possible')
+            raise falcon.HTTPConflict('ApiKey must be disabled before deletion is possible')
         
         key.delete()
         resp.body = {"deleted": True}

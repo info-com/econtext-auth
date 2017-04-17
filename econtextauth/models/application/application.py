@@ -11,9 +11,11 @@ createdAt
 modifiedAt
 customData
 """
+from econtextauth.engine.middleware.econtext import eContextError
 from remodel.models import Model, before_save
 from rethinkdb import now
 import logging
+import falcon
 log = logging.getLogger('econtext')
 
 
@@ -42,9 +44,9 @@ class Application(Model):
         Create a new Application object
         """
         if not name:
-            raise Exception("An Application must have a name")
+            raise falcon.HTTPMissingParam("An Application must have a name")
         if Application.already_exists(name.strip()):
-            raise Exception("An application with that name already exists")
+            raise falcon.HTTPInvalidParam("An application with that name already exists")
         
         created_at = now()
         
@@ -58,7 +60,7 @@ class Application(Model):
         
         if id_ and id_.strip() != '':
             if Application.id_already_exists(id_):
-                raise Exception("An Application with that id already exists")
+                raise falcon.HTTPInvalidParam("An Application with that id already exists")
             app['id'] = id_
         
         app.save()
@@ -75,7 +77,7 @@ class Application(Model):
         
         if 'name' in updates:
             if Application.already_exists(updates.get('name').strip()):
-                raise Exception("An application with that name already exists")
+                raise falcon.HTTPInvalidParam("An application with that name already exists")
             updates['name'] = updates['name'].strip()
         
         updates.pop('created_at', None)

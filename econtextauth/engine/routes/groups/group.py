@@ -1,6 +1,7 @@
 import logging
 import remodel.utils
 import remodel.connection
+import falcon
 from econtextauth.models.group import group
 
 log = logging.getLogger('econtext')
@@ -70,7 +71,7 @@ class Group:
         """
         grp = group.Group.get(groupid)
         if grp is None:
-            raise Exception('Group not found')
+            raise falcon.HTTPInvalidParam('Group not found')
         resp.body = {"group": grp}
         return True
     
@@ -91,7 +92,7 @@ class Group:
         body = req.context['body']
         grp = group.Group.get(groupid)
         if grp is None:
-            raise Exception('Group not found')
+            raise falcon.HTTPInvalidParam('Group not found')
         grp.update_model(body)
         resp.body = {"group": grp}
         return True
@@ -109,9 +110,9 @@ class Group:
         """
         grp = group.Group.get(groupid)
         if not grp:
-            raise Exception('Group not found')
+            raise falcon.HTTPInvalidParam('Group not found')
         if grp.get('status') != 'DISABLED':
-            raise Exception('Group must be disabled before deletion is possible')
+            raise falcon.HTTPConflict('Group must be disabled before deletion is possible')
         grp.delete()
         resp.body = {"deleted": True}
         return True

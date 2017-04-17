@@ -1,5 +1,6 @@
 from econtextauth import models
 import logging
+import falcon
 
 log = logging.getLogger('econtext')
 
@@ -57,7 +58,7 @@ class User:
                 groups=body.get('groups')
             )
         except KeyError as e:
-            raise Exception("Missing required field: {}".format(e.message))
+            raise falcon.HTTPMissingParam("Missing required field: {}".format(e.message))
         except Exception as e:
             raise e
         
@@ -75,7 +76,7 @@ class User:
         """
         user = models.user.user.User.get(userid)
         if user is None:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         resp.body = {"user": user}
         return True
 
@@ -97,7 +98,7 @@ class User:
         body = req.context['body']
         user = models.user.user.User.get(userid)
         if user is None:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         
         user.update_model(body)
         resp.body = {"user": user}
@@ -116,9 +117,9 @@ class User:
         """
         user = models.user.user.User.get(userid)
         if not user:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         if user.get('status') != 'DISABLED':
-            raise Exception('User must be disabled before deletion is possible')
+            raise falcon.HTTPConflict('User must be disabled before deletion is possible')
         user.delete()
         resp.body = {"deleted": True}
         return True

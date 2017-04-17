@@ -1,7 +1,6 @@
 import logging
-import rethinkdb as r
 from econtextauth.models.application import application
-from econtextauth.models.user import user
+import falcon
 
 log = logging.getLogger('econtext')
 
@@ -29,12 +28,9 @@ class Users:
         :param resp:
         :return:
         """
-        grp = application.Application.get(appid)
-        if not grp:
-            raise Exception("Application could not be found")
-        
-        #query = r.table('_group_users').get_all(groupid, index='group_id').eq_join('user_id', r.table('users'),
-        #                                                                           index='id').map(lambda x: x['right'])
-        users = [a for a in grp.fields.users.all()]
+        app = application.Application.get(appid)
+        if not app:
+            raise falcon.HTTPInvalidParam("Application could not be found")
+        users = [a for a in app.fields.users.all()]
         resp.body = {"users": users}
         return True

@@ -15,6 +15,7 @@ password_modified_at (2017-02-10T21:32:18.042Z)
 
 """
 import logging
+import falcon
 from remodel.models import Model, before_save
 from argon2 import PasswordHasher
 from validate_email import validate_email
@@ -74,7 +75,7 @@ class User(Model):
         )
         if id_ and id_.strip() != '':
             if User.id_already_exists(id_):
-                raise Exception("A User with that id already exists")
+                raise falcon.HTTPInvalidParam("A User with that id already exists")
             user.fields.id = id_
         
         user.save()
@@ -156,27 +157,27 @@ class User(Model):
     def check_email(email):
         email = email.lower().strip()
         if User.email_already_exists(email):
-            raise Exception("A user with that email address already exists")
+            raise falcon.HTTPInvalidParam("A user with that email address already exists")
         if not validate_email(email):
-            raise Exception("Invalid email address")
+            raise falcon.HTTPInvalidParam("Invalid email address")
         return email
     
     @staticmethod
     def check_password(password):
         ph = PasswordHasher()
         if len(password.strip()) < 8:
-            raise Exception("Password must be at least 7 characters long")
+            raise falcon.HTTPInvalidParam("Password must be at least 7 characters long")
         return ph.hash(password.strip())
     
     @staticmethod
     def check_applications(applications):
         if not isinstance(applications, list):
-            raise Exception("Expecting a list of application ids")
+            raise falcon.HTTPInvalidParam("Expecting a list of application ids")
         apps = {}
         for app_id in applications:
             app = application.application.Application.get(app_id)
             if not app:
-                raise Exception("Couldn't find application {}".format(app_id))
+                raise falcon.HTTPInvalidParam("Couldn't find application {}".format(app_id))
             apps[app_id] = app
         return apps
     
@@ -184,11 +185,11 @@ class User(Model):
     def check_groups(groups):
         grps = {}
         if groups:
-            if not isinstance(applications, list):
-                raise Exception("Expecting a list of application ids")
+            if not isinstance(groups, list):
+                raise falcon.HTTPInvalidParam("Expecting a list of application ids")
             for grp_id in groups:
                 grp = group.group.Group.get(grp_id)
                 if not grp:
-                    raise Exception("Couldn't find group {}".format(grp_id))
+                    raise falcon.HTTPInvalidParam("Couldn't find group {}".format(grp_id))
                 grps[grp_id] = grp
         return grps

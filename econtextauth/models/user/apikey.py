@@ -14,6 +14,7 @@ import uuid
 import random
 import base64
 import logging
+import falcon
 from remodel.models import Model, before_save
 from rethinkdb import now
 from argon2 import PasswordHasher
@@ -48,7 +49,7 @@ class ApiKey(Model):
         :return:
         """
         if not user:
-            raise Exception("You must have a valid user to create an ApiKey")
+            raise falcon.HTTPInvalidParam("You must have a valid user to create an ApiKey")
         
         ph = PasswordHasher()
         if not id_ or not id_.strip():

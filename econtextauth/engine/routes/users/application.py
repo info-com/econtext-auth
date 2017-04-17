@@ -1,4 +1,5 @@
 import logging
+import falcon
 from econtextauth.models.user import user
 from econtextauth.models.application import application
 
@@ -32,9 +33,9 @@ class Application:
         u = user.User.get(userid)
         a = application.Application.get(appid)
         if not u:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         if not a:
-            raise Exception('Application not found')
+            raise falcon.HTTPInvalidParam('Application not found')
         
         u['applications'].add(a)
         resp.body = {"application": True}
@@ -53,9 +54,9 @@ class Application:
         u = user.User.get(userid)
         a = application.Application.get(appid)
         if not u:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         if not a:
-            raise Exception('Application not found')
+            raise falcon.HTTPInvalidParam('Application not found')
         
         u['applications'].remove(a)
         resp.body = {"deleted": True}

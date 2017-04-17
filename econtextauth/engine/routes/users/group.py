@@ -1,4 +1,5 @@
 import logging
+import falcon
 from econtextauth.models.user import user
 from econtextauth.models.group import group
 log = logging.getLogger('econtext')
@@ -31,13 +32,13 @@ class Group:
         u = user.User.get(userid)
         g = group.Group.get(groupid)
         if not u:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         if not g:
-            raise Exception('Group not found')
+            raise falcon.HTTPInvalidParam('Group not found')
         
         u_applications = set([a.fields.id for a in u.fields.applications.all()])
         if g['application']['id'] not in u_applications:
-            raise Exception('User is not a member the application {} specified by this group'.format(g['application']['id']))
+            raise falcon.HTTPInvalidParam('User is not a member the application {} specified by this group'.format(g['application']['id']))
         
         u['groups'].add(g)
         resp.body = {"group": True}
@@ -56,9 +57,9 @@ class Group:
         u = user.User.get(userid)
         g = group.Group.get(groupid)
         if not u:
-            raise Exception('User not found')
+            raise falcon.HTTPInvalidParam('User not found')
         if not g:
-            raise Exception('Group not found')
+            raise falcon.HTTPInvalidParam('Group not found')
         
         u['groups'].remove(g)
         resp.body = {"deleted": True}

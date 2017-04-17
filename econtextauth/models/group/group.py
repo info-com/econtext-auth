@@ -15,6 +15,7 @@ from remodel.models import Model, before_save
 from rethinkdb import now
 from econtextauth.models.application import application
 import logging
+import falcon
 log = logging.getLogger('econtext')
 
 
@@ -45,7 +46,7 @@ class Group(Model):
         Create a new Group object
         """
         if not name:
-            raise Exception("A Group must have a name")
+            raise falcon.HTTPMissingParam("A Group must have a name")
         
         created_at = now()
         app = Group.check_application(application)
@@ -59,11 +60,11 @@ class Group(Model):
         )
         if id_ and id_.strip() != '':
             if Group.id_already_exists(id_):
-                raise Exception("A Group with that id already exists")
+                raise falcon.HTTPInvalidParam("A Group with that id already exists")
             grp['id'] = id_
         
         if grp.already_exists(name.strip(), app):
-            raise Exception("A Group with that name already exists")
+            raise falcon.HTTPInvalidParam("A Group with that name already exists")
         
         grp.save()
         # Add in connected applications
@@ -82,7 +83,7 @@ class Group(Model):
         
         if 'name' in updates:
             if self.already_exists(updates.get('name').strip()):
-                raise Exception("A Group with that name already exists")
+                raise falcon.HTTPInvalidParam("A Group with that name already exists")
             updates['name'] = updates['name'].strip()
         
         updates.pop('created_at', None)
@@ -97,7 +98,7 @@ class Group(Model):
     def check_application(app_id):
         app = application.Application.get(app_id)
         if not app:
-            raise Exception("Couldn't find application {}".format(app_id))
+            raise falcon.HTTPInvalidParam("Couldn't find application {}".format(app_id))
         return app
     
     @before_save
