@@ -4,6 +4,7 @@ import logging
 import logging.handlers
 import os
 import basicauth
+import time
 import datetime
 from dateutil.tz import tzlocal
 
@@ -30,6 +31,20 @@ class WebLogs(object):
             handler.setFormatter(formatter)
             self.error_log.addHandler(handler)
             self.error_log.setLevel(logging.INFO)
+
+    def process_request(self, req, resp):
+        """Process the request before routing it.
+
+        Args:
+            req: Request object that will eventually be
+                routed to an on_* responder method.
+            resp: Response object that will be routed to
+                the on_* responder.
+
+        @type req: falcon.Request
+        """
+        log.debug("weblogs.process_request")
+        req.context['start_time'] = time.time()
     
     def process_response(self, req, resp, resource):
         """
@@ -51,8 +66,8 @@ class WebLogs(object):
     
     def build_access_line(self, req, resp):
         """
-        Standard combined web log format:
-        {remote_addr} - {remote_user} [{time_local}] "{request}" {status} {body_bytes_sent} "{http_referer}" "{http_user_agent}"
+        Standard combined web log format + request_time:
+        {remote_addr} - {remote_user} [{time_local}] "{request}" {status} {body_bytes_sent} "{http_referer}" "{http_user_agent}" {request_time}
     
         :type req: falcon.Request
         :type resp: falcon.Response
@@ -69,7 +84,8 @@ class WebLogs(object):
             str(resp.status.split(" ")[0]),
             str(len(resp.body)),
             '"{}"'.format(req.env.get("HTTP_REFERER", '-')),
-            '"{}"'.format(req.user_agent or '-')
+            '"{}"'.format(req.user_agent or '-'),
+            "{:.3f}".format(time.time() - req.context.get('start_time', 0))
         ))
     
     def get_request(self, req):
