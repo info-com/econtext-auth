@@ -13,6 +13,7 @@ customData
 """
 from remodel.models import Model, before_save
 from rethinkdb import now
+from econtextauth import get_base_url
 from econtextauth.models.application import application
 import logging
 import falcon
@@ -37,7 +38,7 @@ class Group(Model):
             'created_at': str(self.get('created_at', '')),
             'modified_at': str(self.get('modified_at', '')),
             'application': self['application']['id'],
-            'href': '/api/groups/group/{}'.format(self.fields.id)
+            'href': '{}/api/groups/group/{}'.format(get_base_url(), self.fields.id)
         }
     
     @staticmethod

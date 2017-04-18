@@ -1,10 +1,11 @@
-from gevent import monkey;
-
+from gevent import monkey
 monkey.patch_all()
+
 import falcon
 import gunicorn.app.base
 import argparse
 from os.path import abspath
+from econtextauth import config
 from econtextauth.engine import routes
 from econtextauth.engine.middleware.econtext import exception_handler, error_serializer
 from econtextauth.engine.middleware.econtext.econtext import EcontextMiddleware
@@ -13,18 +14,11 @@ from econtextauth.engine.middleware.econtext.weblogs import WebLogs
 from falcon import api_helpers
 from multiprocessing import cpu_count
 import remodel.connection
-
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
-
 import logging
 
 log = logging.getLogger('econtext')
 
 # Here's our app!
-
 app = falcon.API()
 app.add_error_handler(Exception, exception_handler)
 app.set_error_serializer(error_serializer)
@@ -33,7 +27,9 @@ app.set_error_serializer(error_serializer)
 # Base settings (where to find files)
 ################################################################################
 settings = {
-    'rethinkdb_host': 'localhost'
+    'rethinkdb_host': 'localhost',
+    'rethinkdb_port': 28015,
+    'base_url': 'localhost:8000'
 }
 
 
@@ -92,11 +88,11 @@ def get_log(v):
 
 
 def setup_app(config):
+    econtext_config = settings
     if config is None:
-        econtext_config = settings
         get_log(2)
     else:
-        econtext_config = dict(config.items('econtextauth'))
+        econtext_config.update(dict(config.items('econtextauth')))
     
     app._middleware = falcon.api_helpers.prepare_middleware([
         WebLogs(econtext_config),
@@ -128,7 +124,6 @@ def main():
     options = parser.parse_args()
     get_log(options.config_verbose)
 
-    config = configparser.ConfigParser()
     if options.config_config_file is not None:
         log.debug("Loading configuration file from %s", abspath(options.config_config_file))
         config_file = open(abspath(options.config_config_file))

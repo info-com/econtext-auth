@@ -18,6 +18,7 @@ import falcon
 from remodel.models import Model, before_save
 from rethinkdb import now
 from argon2 import PasswordHasher
+from econtextauth import get_base_url
 log = logging.getLogger('econtext')
 
 
@@ -34,7 +35,7 @@ class ApiKey(Model):
             'name': self.get('name'),
             'description': self.get('description'),
             'status': self.get('status'),
-            'href': '/api/users/user/{}/apikey/{}'.format(self['user']['id'], self.fields.id)
+            'href': '{}/api/users/user/{}/apikey/{}'.format(get_base_url(), self['user']['id'], self.fields.id)
         }
 
     @staticmethod

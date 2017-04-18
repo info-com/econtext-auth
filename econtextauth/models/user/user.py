@@ -19,6 +19,7 @@ import falcon
 from remodel.models import Model, before_save
 from argon2 import PasswordHasher
 from validate_email import validate_email
+from econtextauth import get_base_url
 from econtextauth.models import application, group
 from rethinkdb import now
 log = logging.getLogger('econtext')
@@ -39,7 +40,7 @@ class User(Model):
             'email': self.get('email'),
             'username': self.get('username'),
             'custom_data': self.get('custom_data'),
-            'href': '/api/users/user/{}'.format(self.get('id')),
+            'href': '{}/api/users/user/{}'.format(get_base_url(), self.get('id')),
             'created_at': str(self.get('created_at') or ''),
             'modified_at': str(self.get('modified_at') or ''),
             'status': self.get('status', 'DISABLED'),

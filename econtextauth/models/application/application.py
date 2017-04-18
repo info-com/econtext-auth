@@ -11,7 +11,7 @@ createdAt
 modifiedAt
 customData
 """
-from econtextauth.engine.middleware.econtext import eContextError
+from econtextauth import get_base_url
 from remodel.models import Model, before_save
 from rethinkdb import now
 import logging
@@ -35,7 +35,7 @@ class Application(Model):
             'status': self.get('status'),
             'created_at': str(self.get('created_at') or ''),
             'modified_at': str(self.get('modified_at') or ''),
-            'href': '/api/applications/application/{}'.format(self.fields.id)
+            'href': '{}/api/applications/application/{}'.format(get_base_url(), self.fields.id)
         }
     
     @staticmethod
