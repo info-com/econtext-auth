@@ -42,6 +42,7 @@ class User(Model):
             'href': '/api/users/user/{}'.format(self.get('id')),
             'created_at': str(self.get('created_at') or ''),
             'modified_at': str(self.get('modified_at') or ''),
+            'status': self.get('status', 'DISABLED'),
             
             # Extra relations
             'apikeys': [api_key.fields.id for api_key in self.fields.api_keys.all()],
@@ -75,7 +76,7 @@ class User(Model):
         )
         if id_ and id_.strip() != '':
             if User.id_already_exists(id_):
-                raise falcon.HTTPInvalidParam("A User with that id already exists")
+                raise falcon.HTTPInvalidParam("A User with that id already exists", 'id')
             user.fields.id = id_
         
         user.save()
@@ -157,27 +158,27 @@ class User(Model):
     def check_email(email):
         email = email.lower().strip()
         if User.email_already_exists(email):
-            raise falcon.HTTPInvalidParam("A user with that email address already exists")
+            raise falcon.HTTPInvalidParam("A user with that email address already exists", 'email')
         if not validate_email(email):
-            raise falcon.HTTPInvalidParam("Invalid email address")
+            raise falcon.HTTPInvalidParam("Invalid email address", 'email')
         return email
     
     @staticmethod
     def check_password(password):
         ph = PasswordHasher()
         if len(password.strip()) < 8:
-            raise falcon.HTTPInvalidParam("Password must be at least 7 characters long")
+            raise falcon.HTTPInvalidParam("Password must be at least 7 characters long", 'password')
         return ph.hash(password.strip())
     
     @staticmethod
     def check_applications(applications):
         if not isinstance(applications, list):
-            raise falcon.HTTPInvalidParam("Expecting a list of application ids")
+            raise falcon.HTTPInvalidParam("Expecting a list of application ids", 'applications')
         apps = {}
         for app_id in applications:
             app = application.application.Application.get(app_id)
             if not app:
-                raise falcon.HTTPInvalidParam("Couldn't find application {}".format(app_id))
+                raise falcon.HTTPInvalidParam("Couldn't find application {}".format(app_id), 'applications')
             apps[app_id] = app
         return apps
     
@@ -186,10 +187,10 @@ class User(Model):
         grps = {}
         if groups:
             if not isinstance(groups, list):
-                raise falcon.HTTPInvalidParam("Expecting a list of application ids")
+                raise falcon.HTTPInvalidParam("Expecting a list of group ids", 'groups')
             for grp_id in groups:
                 grp = group.group.Group.get(grp_id)
                 if not grp:
-                    raise falcon.HTTPInvalidParam("Couldn't find group {}".format(grp_id))
+                    raise falcon.HTTPInvalidParam("Couldn't find group {}".format(grp_id), 'groups')
                 grps[grp_id] = grp
         return grps

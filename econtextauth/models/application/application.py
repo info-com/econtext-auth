@@ -44,9 +44,9 @@ class Application(Model):
         Create a new Application object
         """
         if not name:
-            raise falcon.HTTPMissingParam("An Application must have a name")
+            raise falcon.HTTPMissingParam("An Application must have a name", 'name')
         if Application.already_exists(name.strip()):
-            raise falcon.HTTPInvalidParam("An application with that name already exists")
+            raise falcon.HTTPInvalidParam("An application with that name already exists", 'name')
         
         created_at = now()
         
@@ -60,7 +60,7 @@ class Application(Model):
         
         if id_ and id_.strip() != '':
             if Application.id_already_exists(id_):
-                raise falcon.HTTPInvalidParam("An Application with that id already exists")
+                raise falcon.HTTPInvalidParam("An Application with that id already exists", 'id')
             app['id'] = id_
         
         app.save()
@@ -77,7 +77,7 @@ class Application(Model):
         
         if 'name' in updates:
             if Application.already_exists(updates.get('name').strip()):
-                raise falcon.HTTPInvalidParam("An application with that name already exists")
+                raise falcon.HTTPInvalidParam("An application with that name already exists", 'name')
             updates['name'] = updates['name'].strip()
         
         updates.pop('created_at', None)

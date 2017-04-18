@@ -41,15 +41,17 @@ class Group(Model):
         }
     
     @staticmethod
-    def create_new(name, description=None, status='ENABLED', custom_data=None, application=None, id_=None, *args, **kwargs):
+    def create_new(name, description=None, status='ENABLED', custom_data=None, app_id=None, id_=None, *args, **kwargs):
         """
         Create a new Group object
         """
         if not name:
-            raise falcon.HTTPMissingParam("A Group must have a name")
+            raise falcon.HTTPMissingParam('name')
+        if not app_id:
+            raise falcon.HTTPMissingParam('application')
         
         created_at = now()
-        app = Group.check_application(application)
+        app = Group.check_application(app_id)
         
         grp = Group(
             name=name.strip(),

@@ -80,7 +80,7 @@ class Authenticate:
             if not Authenticate.check_pass(hashed_password, body['credential']['password']):
                 raise Exception()
             
-            applications = set([app.fields.id for app in u.fields.applications.all()])
+            applications = set([app.fields.id for app in u.fields.applications.all() if app.get('status') != 'DISABLED'])
             if body['application'] not in applications:
                 raise Exception()
             

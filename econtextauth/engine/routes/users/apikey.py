@@ -25,6 +25,31 @@ class Apikey:
     def __init__(self, econtext):
         self.econtext = econtext
     
+    def on_post(self, req, resp, userid):
+        """
+        Create a new ApiKey and attach it to a user
+        
+        :param req:
+        :param resp:
+        :param userid:
+        """
+        body = req.context['body']
+        user = models.user.user.User.get(userid)
+        if not user:
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
+        
+        key = models.user.apikey.ApiKey.create_new(
+            user=user,
+            name=body.get('name'),
+            description=body.get('description'),
+            id_=body.get('id'),
+            secret=body.get('secret')
+        )
+        resp_dict = key.json
+        resp_dict['secret'] = key.fields.secret
+        resp.body = {"apikey": resp_dict}
+        return True
+    
     def on_get(self, req, resp, userid, apikeyid):
         """
         GET an ApiKey object
@@ -38,44 +63,19 @@ class Apikey:
         user = models.user.user.User.get(userid)
         key = models.user.apikey.ApiKey.get(apikeyid)
         if user is None:
-            raise falcon.HTTPInvalidParam('User not found')
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
         if not key:
-            raise falcon.HTTPInvalidParam('ApiKey not found')
+            raise falcon.HTTPInvalidParam('ApiKey not found', 'apikeyid')
         resp.body = {"apikey": key}
-        return True
-    
-    def on_post(self, req, resp, userid):
-        """
-        Create a new ApiKey and attach it to a user
-        
-        :param req:
-        :param resp:
-        :param userid:
-        """
-        body = req.context['body']
-        user = models.user.user.User.get(userid)
-        if not user:
-            raise falcon.HTTPInvalidParam('User not found')
-        
-        key = models.user.apikey.ApiKey.create_new(
-            user=user,
-            name=body.get('name'),
-            description=body.get('description'),
-            id_=body.get('id'),
-            secret=body.get('secret')
-        )
-        resp_dict = key.json
-        resp_dict['secret'] = key.fields.secret
-        resp.body = {"apikey": resp_dict}
         return True
 
     def on_put(self, req, resp, userid, apikeyid):
         user = models.user.user.User.get(userid)
         key = models.user.apikey.ApiKey.get(apikeyid)
         if user is None:
-            raise falcon.HTTPInvalidParam('User not found')
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
         if not key:
-            raise falcon.HTTPInvalidParam('ApiKey not found')
+            raise falcon.HTTPInvalidParam('ApiKey not found', 'apikeyid')
         body = req.context['body']
         key.update_model(body)
         resp.body = {"apikey": key}
@@ -95,11 +95,11 @@ class Apikey:
         user = models.user.user.User.get(userid)
         key = models.user.apikey.ApiKey.get(apikeyid)
         if user is None:
-            raise falcon.HTTPInvalidParam('User not found')
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
         if not key:
-            raise falcon.HTTPInvalidParam('ApiKey not found')
+            raise falcon.HTTPInvalidParam('ApiKey not found', 'apikeyid')
         if key.get('status') != 'DISABLED':
-            raise falcon.HTTPConflict('ApiKey must be disabled before deletion is possible')
+            raise falcon.HTTPConflict(falcon.HTTP_409, 'ApiKey must be disabled before deletion is possible')
         
         key.delete()
         resp.body = {"deleted": True}

@@ -32,7 +32,7 @@ class Users:
         """
         grp = group.Group.get(groupid)
         if not grp:
-            raise falcon.HTTPInvalidParam("Group could not be found")
+            raise falcon.HTTPInvalidParam("Group could not be found", 'groupid')
         
         query = r.table('_group_users').get_all(groupid, index='group_id').eq_join('user_id', r.table('users'), index='id').map(lambda x: x['right'])
         users = [user.User(**u) for u in query.run()]

@@ -58,7 +58,7 @@ class User:
                 groups=body.get('groups')
             )
         except KeyError as e:
-            raise falcon.HTTPMissingParam("Missing required field: {}".format(e.message))
+            raise falcon.HTTPMissingParam(e.message)
         except Exception as e:
             raise e
         
@@ -76,7 +76,7 @@ class User:
         """
         user = models.user.user.User.get(userid)
         if user is None:
-            raise falcon.HTTPInvalidParam('User not found')
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
         resp.body = {"user": user}
         return True
 
@@ -98,7 +98,7 @@ class User:
         body = req.context['body']
         user = models.user.user.User.get(userid)
         if user is None:
-            raise falcon.HTTPInvalidParam('User not found')
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
         
         user.update_model(body)
         resp.body = {"user": user}
@@ -117,9 +117,9 @@ class User:
         """
         user = models.user.user.User.get(userid)
         if not user:
-            raise falcon.HTTPInvalidParam('User not found')
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
         if user.get('status') != 'DISABLED':
-            raise falcon.HTTPConflict('User must be disabled before deletion is possible')
+            raise falcon.HTTPConflict(falcon.HTTP_409, 'User must be disabled before deletion is possible')
         user.delete()
         resp.body = {"deleted": True}
         return True

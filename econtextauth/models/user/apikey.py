@@ -49,7 +49,7 @@ class ApiKey(Model):
         :return:
         """
         if not user:
-            raise falcon.HTTPInvalidParam("You must have a valid user to create an ApiKey")
+            raise falcon.HTTPInvalidParam("You must have a valid user to create an ApiKey", 'userid')
         
         ph = PasswordHasher()
         if not id_ or not id_.strip():

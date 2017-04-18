@@ -54,7 +54,7 @@ class Group:
             status=body.get('status', 'ENABLED'),
             custom_data=body.get('custom_data'),
             id_=body.get('id'),
-            applications=body.get('applications')
+            app_id=body.get('application')
         )
         
         resp.body = {"group": grp}
@@ -92,7 +92,7 @@ class Group:
         body = req.context['body']
         grp = group.Group.get(groupid)
         if grp is None:
-            raise falcon.HTTPInvalidParam('Group not found')
+            raise falcon.HTTPInvalidParam('Group not found', 'groupid')
         grp.update_model(body)
         resp.body = {"group": grp}
         return True
@@ -110,9 +110,9 @@ class Group:
         """
         grp = group.Group.get(groupid)
         if not grp:
-            raise falcon.HTTPInvalidParam('Group not found')
+            raise falcon.HTTPInvalidParam('Group not found', 'groupid')
         if grp.get('status') != 'DISABLED':
-            raise falcon.HTTPConflict('Group must be disabled before deletion is possible')
+            raise falcon.HTTPConflict(falcon.HTTP_409, 'Group must be disabled before deletion is possible')
         grp.delete()
         resp.body = {"deleted": True}
         return True

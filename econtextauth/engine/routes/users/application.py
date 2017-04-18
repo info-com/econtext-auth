@@ -33,9 +33,9 @@ class Application:
         u = user.User.get(userid)
         a = application.Application.get(appid)
         if not u:
-            raise falcon.HTTPInvalidParam('User not found')
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
         if not a:
-            raise falcon.HTTPInvalidParam('Application not found')
+            raise falcon.HTTPInvalidParam('Application not found', 'appid')
         
         u['applications'].add(a)
         resp.body = {"application": True}
@@ -54,9 +54,9 @@ class Application:
         u = user.User.get(userid)
         a = application.Application.get(appid)
         if not u:
-            raise falcon.HTTPInvalidParam('User not found')
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
         if not a:
-            raise falcon.HTTPInvalidParam('Application not found')
+            raise falcon.HTTPInvalidParam('Application not found', 'appid')
         
         u['applications'].remove(a)
         resp.body = {"deleted": True}

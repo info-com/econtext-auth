@@ -1,6 +1,7 @@
 import logging
 import remodel.utils
 import remodel.connection
+import falcon
 from econtextauth.models.application import application
 
 log = logging.getLogger('econtext')
@@ -59,7 +60,7 @@ class Application:
         """
         app = application.Application.get(appid)
         if app is None:
-            raise Exception('Application not found')
+            raise falcon.HTTPInvalidParam('Application not found', 'appid')
         resp.body = {"application": app}
         return True
 
@@ -80,7 +81,7 @@ class Application:
         body = req.context['body']
         app = application.Application.get(appid)
         if app is None:
-            raise Exception('Application not found')
+            raise falcon.HTTPInvalidParam('Application not found', 'appid')
         app.update_model(body)
         resp.body = {"application": app}
         return True
@@ -97,12 +98,20 @@ class Application:
         :return:
         """
         if appid == self.econtext.get('application_id'):
-            raise Exception("Cannot delete the system application")
+            raise falcon.HTTPInvalidParam("Cannot delete the system application", 'appid')
         app = application.Application.get(appid)
         if app is None:
-            raise Exception('Application not found')
+            raise falcon.HTTPInvalidParam('Application not found', 'appid')
         if app.get('status') != 'DISABLED':
-            raise Exception('Application must be disabled before deletion is possible')
+            raise falcon.HTTPConflict(falcon.HTTP_409, 'Application must be disabled before deletion is possible')
+        
+        users = [a for a in app.fields.users.all()]
+        if len(users) > 0:
+            raise falcon.HTTPConflict(
+                falcon.HTTP_409,
+                'Users must be deleted or updated before application deletion is possible'
+            )
+        
         app.delete()
         resp.body = {"deleted": True}
         return True

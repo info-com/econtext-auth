@@ -30,7 +30,7 @@ class Users:
         """
         app = application.Application.get(appid)
         if not app:
-            raise falcon.HTTPInvalidParam("Application could not be found")
+            raise falcon.HTTPInvalidParam("Application could not be found", 'appid')
         users = [a for a in app.fields.users.all()]
         resp.body = {"users": users}
         return True

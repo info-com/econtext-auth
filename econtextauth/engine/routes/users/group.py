@@ -26,19 +26,20 @@ class Group:
     def on_post(self, req, resp, userid, groupid):
         """
         Add a Group connection to a user
+        
         :param req:
         :param resp:
         """
         u = user.User.get(userid)
         g = group.Group.get(groupid)
         if not u:
-            raise falcon.HTTPInvalidParam('User not found')
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
         if not g:
-            raise falcon.HTTPInvalidParam('Group not found')
+            raise falcon.HTTPInvalidParam('Group not found', 'groupid')
         
         u_applications = set([a.fields.id for a in u.fields.applications.all()])
         if g['application']['id'] not in u_applications:
-            raise falcon.HTTPInvalidParam('User is not a member the application {} specified by this group'.format(g['application']['id']))
+            raise falcon.HTTPInvalidParam('User is not a member the application {} specified by this group'.format(g['application']['id']), 'groupid')
         
         u['groups'].add(g)
         resp.body = {"group": True}
@@ -57,9 +58,9 @@ class Group:
         u = user.User.get(userid)
         g = group.Group.get(groupid)
         if not u:
-            raise falcon.HTTPInvalidParam('User not found')
+            raise falcon.HTTPInvalidParam('User not found', 'userid')
         if not g:
-            raise falcon.HTTPInvalidParam('Group not found')
+            raise falcon.HTTPInvalidParam('Group not found', 'groupid')
         
         u['groups'].remove(g)
         resp.body = {"deleted": True}
