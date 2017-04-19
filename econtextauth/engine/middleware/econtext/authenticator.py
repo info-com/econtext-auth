@@ -30,4 +30,4 @@ class Authenticator(object):
         except:
             pass
         
-        raise falcon.HTTPUnauthorized('401 Unauthorized', "Authentication required", 'Basic realm="eContext Authentication"')
+        raise falcon.HTTPUnauthorized('401 Unauthorized', "Authentication required", ['Basic realm="eContext Authentication"'])
