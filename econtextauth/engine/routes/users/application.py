@@ -58,6 +58,9 @@ class Application:
         if not a:
             raise falcon.HTTPInvalidParam('Application not found', 'appid')
         
-        u['applications'].remove(a)
+        if u['applications'].count() == 1:
+            raise falcon.HTTPConflict('409 Conflict', 'A User must be associated with at least one Application')
+        
+        a['users'].remove(u)
         resp.body = {"deleted": True}
         return True

@@ -62,6 +62,6 @@ class Group:
         if not g:
             raise falcon.HTTPInvalidParam('Group not found', 'groupid')
         
-        u['groups'].remove(g)
+        g['users'].remove(u)
         resp.body = {"deleted": True}
         return True

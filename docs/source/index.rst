@@ -6,6 +6,10 @@ eContext Authentication API documentation
 
     introduction
     concepts
+    authenticate
+    applications/index
+    groups/index
+    users/index
     changelog
 
 Notes

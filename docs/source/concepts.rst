@@ -32,5 +32,5 @@ API must include the specific Application which a client is seeking access to.
 Custom Data
 -----------
 
-Custom Data is an additional JSON field which is available in each of the above objects
-and can be used to store additional information about a User, Group, or Application.
+Custom Data is an additional JSON object field which is available in each of the above
+objects and can be used to store additional information about a User, Group, or Application.
