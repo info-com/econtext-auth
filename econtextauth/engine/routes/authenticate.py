@@ -1,6 +1,6 @@
-from argon2 import PasswordHasher
 from econtextauth.models.user.user import User
 from econtextauth.models.user.apikey import ApiKey
+import bcrypt
 import logging
 
 log = logging.getLogger('econtext')
@@ -84,10 +84,10 @@ class Authenticate:
             if body['application'] not in applications:
                 raise Exception()
             
-            resp.body = {"authenticated": True}
+            resp.body = {"authenticated": True, "user": u}
         except Exception as e:
             log.exception(e)
-            resp.body = {"authenticated": False}
+            resp.body = {"authenticated": False, "user": None}
         
         return True
     
@@ -109,9 +109,8 @@ class Authenticate:
     def check_pass(hashed_password, unhashed_password):
         if not hashed_password or not unhashed_password.strip():
             return False
-        ph = PasswordHasher()
         try:
-            ph.verify(hashed_password, unhashed_password)
+            passed = bcrypt.checkpw(unhashed_password, hashed_password)
         except:
             return False
-        return True
+        return passed

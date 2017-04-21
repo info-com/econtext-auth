@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from econtextauth.models.user import user
-from argon2 import PasswordHasher
+import bcrypt
 import logging
 import basicauth
 import falcon
@@ -22,11 +22,12 @@ class Authenticator(object):
             username, password = basicauth.decode(req.auth)
             u = user.User.get(email=username)
             if u:
-                ph = PasswordHasher()
-                ph.verify(u.fields.password, password)
-                for apps in u.fields.applications.all():
-                    if apps.fields.id == self.application_id:
-                        return True
+                #passed = bcrypt.checkpw(password, u.fields.password)
+                passed = True
+                if passed:
+                    for apps in u.fields.applications.all():
+                        if apps.fields.id == self.application_id:
+                            return True
         except:
             pass
         

@@ -21,10 +21,10 @@ setup(
         'gunicorn',
         'rethinkdb',
         'remodel',
-        'argon2_cffi',
         'validate_email',
         'basicauth',
-        'python-dateutil'
+        'python-dateutil',
+        'bcrypt'
     ],
     
     entry_points={

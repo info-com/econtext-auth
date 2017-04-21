@@ -16,8 +16,8 @@ password_modified_at (2017-02-10T21:32:18.042Z)
 """
 import logging
 import falcon
+import bcrypt
 from remodel.models import Model, before_save
-from argon2 import PasswordHasher
 from validate_email import validate_email
 from econtextauth import get_base_url
 from econtextauth.models import application, group
@@ -46,9 +46,9 @@ class User(Model):
             'status': self.get('status', 'DISABLED'),
             
             # Extra relations
-            'apikeys': [api_key.fields.id for api_key in self.fields.api_keys.all()],
-            'applications': [application.fields.id for application in self.fields.applications.all()],
-            'groups': [group.fields.id for group in self.fields.groups.all()]
+            'apikeys': list(self.fields.api_keys.all()),
+            'applications': list(self.fields.applications.all()),
+            'groups': list(self.fields.groups.all())
         }
     
     @staticmethod
@@ -166,10 +166,9 @@ class User(Model):
     
     @staticmethod
     def check_password(password):
-        ph = PasswordHasher()
         if len(password.strip()) < 8:
             raise falcon.HTTPInvalidParam("Password must be at least 7 characters long", 'password')
-        return ph.hash(password.strip())
+        return bcrypt.hashpw(password.strip(), bcrypt.gensalt())
     
     @staticmethod
     def check_applications(applications):

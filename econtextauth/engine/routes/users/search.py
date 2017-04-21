@@ -53,6 +53,6 @@ class Search:
             ).run()
         ])
         users.update(custom_data_users)
-
-        resp.body = {"users": list(users)}
+        users_dict = {u.fields.id:u for u in users}
+        resp.body = {"users": users_dict.values()}
         return True

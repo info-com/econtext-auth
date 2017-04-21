@@ -15,9 +15,9 @@ import random
 import base64
 import logging
 import falcon
+import bcrypt
 from remodel.models import Model, before_save
 from rethinkdb import now
-from argon2 import PasswordHasher
 from econtextauth import get_base_url
 log = logging.getLogger('econtext')
 
@@ -52,13 +52,12 @@ class ApiKey(Model):
         if not user:
             raise falcon.HTTPInvalidParam("You must have a valid user to create an ApiKey", 'userid')
         
-        ph = PasswordHasher()
         if not id_ or not id_.strip():
             id_ = ApiKey.generate_25_char_id()
         if not secret or not secret.strip():
             secret = base64.b64encode(str(uuid.uuid4()))
         
-        secret_hash = ph.hash(secret)
+        secret_hash = bcrypt.hashpw(secret, bcrypt.gensalt())
         created_at = now()
         status = status or 'ENABLED'
         a = ApiKey(id=id_, name=name, description=description, secret=secret_hash, status=status, created_at=created_at)
