@@ -57,7 +57,7 @@ class ApiKey(Model):
         if not secret or not secret.strip():
             secret = base64.b64encode(str(uuid.uuid4()))
         
-        secret_hash = bcrypt.hashpw(secret, bcrypt.gensalt())
+        secret_hash = bcrypt.hashpw(secret.encode('utf8'), bcrypt.gensalt())
         created_at = now()
         status = status or 'ENABLED'
         a = ApiKey(id=id_, name=name, description=description, secret=secret_hash, status=status, created_at=created_at)
