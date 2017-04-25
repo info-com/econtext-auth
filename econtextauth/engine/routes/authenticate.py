@@ -76,8 +76,10 @@ class Authenticate:
                     u = a.fields.user
             
             if not Authenticate.check_status(u):
+                log.debug("Failed check_status")
                 raise Exception()
             if not Authenticate.check_pass(hashed_password, body['credential']['password'].encode('utf8')):
+                log.debug("Failed check_pass")
                 raise Exception()
             
             applications = set([app.fields.id for app in u.fields.applications.all() if app.get('status') != 'DISABLED'])
