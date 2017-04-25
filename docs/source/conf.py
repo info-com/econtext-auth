@@ -241,6 +241,6 @@ texinfo_documents = [
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
 
-extlinks = {'api_url': ('https://auth.econtext.com/api/%s', None)}
+extlinks = {'api_url': ('https://auth.econtext.ai/api/%s', None)}
 
 
