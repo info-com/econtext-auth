@@ -78,7 +78,7 @@ class Authenticate:
             if not Authenticate.check_status(u):
                 log.debug("Failed check_status")
                 raise Exception()
-            if not Authenticate.check_pass(hashed_password, body['credential']['password'].encode('utf8')):
+            if not Authenticate.check_pass(hashed_password.encode('utf8'), body['credential']['password'].encode('utf8')):
                 log.debug("Failed check_pass")
                 raise Exception()
             
