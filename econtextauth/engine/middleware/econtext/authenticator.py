@@ -25,12 +25,12 @@ class Authenticator(object):
             username, password = basicauth.decode(req.auth)
             u = user.User.get(email=username)
             if u:
-                passed = bcrypt.checkpw(password, u.fields.password)
+                passed = bcrypt.checkpw(password.encode('utf8'), u.fields.password.encode('utf8'))
                 if passed:
                     for apps in u.fields.applications.all():
                         if apps.fields.id == self.application_id:
                             return True
-        except:
-            pass
+        except Exception as e:
+            log.debug("Caught an exception during authentication: {}".format(e))
         
         raise falcon.HTTPUnauthorized('401 Unauthorized', "Authentication required", ['Basic realm="eContext Authentication"'])
