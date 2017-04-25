@@ -113,6 +113,7 @@ class Authenticate:
             return False
         try:
             passed = bcrypt.checkpw(unhashed_password, hashed_password)
-        except:
+        except Exception as e:
+            log.debug("some error occurred: {}".format(e))
             return False
         return passed
