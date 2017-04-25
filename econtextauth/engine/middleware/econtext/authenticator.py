@@ -25,8 +25,7 @@ class Authenticator(object):
             username, password = basicauth.decode(req.auth)
             u = user.User.get(email=username)
             if u:
-                #passed = bcrypt.checkpw(password, u.fields.password)
-                passed = True
+                passed = bcrypt.checkpw(password, u.fields.password)
                 if passed:
                     for apps in u.fields.applications.all():
                         if apps.fields.id == self.application_id:
