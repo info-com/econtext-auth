@@ -37,7 +37,16 @@ GET Response
             "username": "test-user@econtext.ai",
             "status": "UNVERIFIED",
             "applications": [
-              "ec48dad3-ca61-4d74-a584-3ee3db4708ef"
+              {
+                "status": "ENABLED",
+                "href": "https://auth.econtext.ai/api/applications/application/609543d6-1cca-4039-9c1a-c843bda15ba4",
+                "name": "Test Application",
+                "custom_data": null,
+                "created_at": "2017-05-08 19:21:13.381000+00:00",
+                "modified_at": "2017-05-08 19:21:13.381000+00:00",
+                "id": "609543d6-1cca-4039-9c1a-c843bda15ba4",
+                "description": "Test application for use in this round of tests"
+              }
             ],
             "href": ":api_url:`users/user/a3bc334a-f9f2-4797-aaa2-1440811c0ec0`",
             "groups": [],

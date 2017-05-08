@@ -42,7 +42,19 @@ GET Response
               "applications": [],
               "href": ":api_url:`users/user/a3bc334a-f9f2-4797-aaa2-1440811c0ec0`",
               "groups": [
-                "16191e59-85e8-416f-826d-9cf8106c8cad"
+                {
+                  "status": "ENABLED",
+                  "application": "609543d6-1cca-4039-9c1a-c843bda15ba4",
+                  "href": "https://auth.econtext.ai/api/groups/group/5fb6f5d6-3a6d-4e1d-83bb-7445274745bf",
+                  "name": "Test Group",
+                  "custom_data": {
+                    "tier_depth": 9
+                  },
+                  "created_at": "2017-05-08 19:22:48.867000+00:00",
+                  "modified_at": "2017-05-08 19:22:48.871000+00:00",
+                  "id": "5fb6f5d6-3a6d-4e1d-83bb-7445274745bf",
+                  "description": "A test group with some custom_data"
+                }
               ],
               "apikeys": [],
               "id": "a3bc334a-f9f2-4797-aaa2-1440811c0ec0",
