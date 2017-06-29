@@ -1,28 +1,29 @@
 import logging
 from econtextauth.models.application import application
+from econtextauth.models.group import group
 import falcon
 
 log = logging.getLogger('econtext')
 
 
-class Users:
+class Groups:
     """
-    Users
+    Groups
 
-    GET  - Retrieve all users associated with a particular application
+    GET  - Retrieve all groups associated with a particular application
     """
-    routes = ['applications/application/{appid}/users']
+    routes = ['applications/application/{appid}/groups']
     
     def __init__(self, econtext):
         self.econtext = econtext
     
     @staticmethod
     def get_route_constructor(*args, **kwargs):
-        return Users(*args)
+        return Groups(*args)
     
     def on_get(self, req, resp, appid):
         """
-        Retrieve all users belonging to an application
+        Retrieve all groups belonging to an application
 
         :param req:
         :param resp:
@@ -31,8 +32,6 @@ class Users:
         app = application.Application.get(appid)
         if not app:
             raise falcon.HTTPInvalidParam("Application could not be found", 'appid')
-        users = [a for a in app.fields.users.all()]
-        if req.get_param('minimal'):
-            users = [u.json_minimal for u in users]
-        resp.body = {"users": users}
+        groups = list(group.Group.filter(application_id=appid))
+        resp.body = {"groups": groups}
         return True

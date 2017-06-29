@@ -29,5 +29,7 @@ class Users:
             :return:
         """
         users = list(user.User.all())
+        if req.get_param('minimal'):
+            users = [u.json_minimal for u in users]
         resp.body = {"users": users}
         return True

@@ -16,7 +16,7 @@ setup(
     data_files=data_files,
     install_requires=[
         'requests',
-        'falcon >= 1.1',
+        'falcon >= 1.2',
         'gevent',
         'gunicorn',
         'rethinkdb',

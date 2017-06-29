@@ -51,6 +51,20 @@ class User(Model):
             'groups': list(self.fields.groups.all())
         }
     
+    @property
+    def json_minimal(self):
+        return {  # base user data
+            'id': self.get('id'),
+            'name': self.get('name'),
+            'email': self.get('email'),
+            'username': self.get('username'),
+            'custom_data': self.get('custom_data'),
+            'href': '{}/api/users/user/{}'.format(get_base_url(), self.get('id')),
+            'created_at': str(self.get('created_at') or ''),
+            'modified_at': str(self.get('modified_at') or ''),
+            'status': self.get('status', 'DISABLED')
+        }
+    
     @staticmethod
     def create_new(email, password, applications, name=None, custom_data=None, status='UNVERIFIED', id_=None, username=None, groups=None, *args, **kwargs):
         """

@@ -19,6 +19,7 @@ route_classes = [
     applications.application.Application,
     applications.applications.Applications,
     applications.users.Users,
+    applications.groups.Groups,
     groups.group.Group,
     groups.groups.Groups,
     groups.users.Users,
