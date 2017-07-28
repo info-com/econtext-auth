@@ -105,6 +105,13 @@ class Application:
         if app.get('status') != 'DISABLED':
             raise falcon.HTTPConflict(falcon.HTTP_409, 'Application must be disabled before deletion is possible')
         
+        groups = [g for g in app.fields.groups.all()]
+        if len(groups) > 0:
+            raise falcon.HTTPConflict(
+                falcon.HTTP_409,
+                'Groups must be deleted before application deletion is possible'
+            )
+        
         users = [a for a in app.fields.users.all()]
         if len(users) > 0:
             raise falcon.HTTPConflict(
