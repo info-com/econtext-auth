@@ -1,5 +1,6 @@
 import logging
 import falcon
+import rethinkdb as r
 from econtextauth.models.user import user
 from econtextauth.models.group import group
 log = logging.getLogger('econtext')
@@ -62,6 +63,6 @@ class Group:
         if not g:
             raise falcon.HTTPInvalidParam('Group not found', 'groupid')
         
-        u['groups'].remove(g)
+        query = r.table('_group_users').get_all(userid, index='user_id').filter({'group_id': groupid}).delete().run()
         resp.body = {"deleted": True}
         return True

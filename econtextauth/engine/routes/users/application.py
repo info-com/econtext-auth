@@ -60,7 +60,7 @@ class Application:
         
         if u['applications'].count() == 1:
             raise falcon.HTTPConflict('409 Conflict', 'A User must be associated with at least one Application')
-        
-        u['applications'].remove(a)
+
+        query = r.table('_application_users').get_all(userid, index='user_id').filter({'application_id': appid}).delete().run()
         resp.body = {"deleted": True}
         return True
