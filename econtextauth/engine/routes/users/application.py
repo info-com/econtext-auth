@@ -1,5 +1,6 @@
 import logging
 import falcon
+import rethinkdb as r
 from econtextauth.models.user import user
 from econtextauth.models.application import application
 
