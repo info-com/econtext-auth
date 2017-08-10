@@ -146,7 +146,7 @@ def main():
         'bind': "{}:{}".format(server_config.get('host', '0.0.0.0'), server_config.get('port', '8000')),
         'workers': int(server_config.get('workers', cpu_count())),
         'threads': int(server_config.get('threads', 100)),
-        'max_requests': server_config.get('max_requests', 100000),
+        'max_requests': server_config.get('max_requests', 1000),
         'graceful_timeout': server_config.get('graceful_timeout', 5),
         'pidfile': server_config.get('pidfile', '/var/run/econtext-auth-engine.pid'),
         'preload_app': True,

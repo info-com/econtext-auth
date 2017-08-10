@@ -29,7 +29,8 @@ setup(
     
     entry_points={
         'console_scripts': [
-            'econtextauth-engine = econtextauth.engine.engine:main'
+            'econtextauth-engine = econtextauth.engine.engine:main',
+            'econtextauth-status = econtextauth.engine.bin.apistatus:main'
         ]
     }
 
