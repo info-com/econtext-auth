@@ -4,6 +4,7 @@ users.
 """
 
 from econtextauth.engine.routes import ping
+from econtextauth.engine.routes import status
 from econtextauth.engine.routes import users
 from econtextauth.engine.routes import applications
 from econtextauth.engine.routes import groups
@@ -13,6 +14,7 @@ from econtextauth.engine.routes import test
 
 route_classes = [
     ping.Ping,
+    status.Status,
     test.Test,
     authenticate.Authenticate,
     
