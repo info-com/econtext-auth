@@ -59,7 +59,7 @@ def main():
         raise Exception("An error occurred - missing credentials")
     
     host = options.host
-    url = "https://{}/api/ping".format(host)
+    url = "https://{}/api/status".format(host)
     log.debug("Checking status from {}".format(url))
     response = requests.get(url, auth=requests.auth.HTTPBasicAuth(eu, ep))
     if response.status_code == 200:
@@ -72,7 +72,13 @@ def main():
     # error, it's okay to sleep for a while!
     result = response.json()
     title = "Problem with {}".format(host)
-    message = result['econtext']['error']['message']
+    message = "There was an error"
+    
+    try:
+        message = result['econtext']['traceback']
+    except:
+        pass
+    
     log.error("{}: {}".format(title, message))
     log.error("Full result: {}".format(json.dumps(result)))
     
