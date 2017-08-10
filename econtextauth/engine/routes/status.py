@@ -14,7 +14,7 @@ class Status:
     def on_get(self, req, resp):
         rethink_connection = False
         for conn in remodel.connection.get_conn().gen:
-            if not conn.is_open():
+            if conn.is_open():
                 rethink_connection = True
                 break
         
