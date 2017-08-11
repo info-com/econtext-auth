@@ -70,11 +70,12 @@ def main():
     # If there was an error - lets send a notice about it
     # Also, because I don't want to get inundated with errors, after we send an
     # error, it's okay to sleep for a while!
-    result = response.json()
     title = "Problem with {}".format(host)
     message = "There was an error"
+    result = "There was an error"
     
     try:
+        result = response.json()
         message = result['econtext']['traceback']
     except:
         pass
