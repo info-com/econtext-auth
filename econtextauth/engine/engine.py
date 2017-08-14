@@ -148,7 +148,7 @@ def main():
         'threads': int(server_config.get('threads', 100)),
         'max_requests': server_config.get('max_requests', 1000),
         'graceful_timeout': server_config.get('graceful_timeout', 5),
-        'pidfile': server_config.get('pidfile', '/var/run/econtext-auth-engine.pid'),
+        'pidfile': server_config.get('pidfile', '/var/run/econtextauth-engine.pid'),
         'preload_app': True,
 
         # CALLBACKS
