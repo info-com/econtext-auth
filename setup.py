@@ -3,6 +3,9 @@ from setuptools import setup, find_packages
 data_files = [
     ('/etc/econtext/auth', [
         'econtextauth/engine/data/econtextauth.ini'
+    ]),
+    ('/etc/init.d', [
+        'econtextauth/engine/data/econtext-auth'
     ])
 ]
 
