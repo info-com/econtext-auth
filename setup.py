@@ -5,7 +5,7 @@ data_files = [
         'econtextauth/engine/data/econtextauth.ini'
     ]),
     ('/etc/init.d', [
-        'econtextauth/engine/data/econtext-auth'
+        'econtextauth/engine/data/econtextauth-engine'
     ])
 ]
 
