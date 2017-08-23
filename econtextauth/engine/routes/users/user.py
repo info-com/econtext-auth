@@ -120,6 +120,10 @@ class User:
             raise falcon.HTTPInvalidParam('User not found', 'userid')
         if user.get('status') != 'DISABLED':
             raise falcon.HTTPConflict(falcon.HTTP_409, 'User must be disabled before deletion is possible')
+        
+        for apikey in user['apikeys']:
+            apikey.delete()
+        
         user.delete()
         resp.body = {"deleted": True}
         return True
