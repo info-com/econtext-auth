@@ -110,6 +110,8 @@ class User:
         
         The user specified should have the status changed to "deleted"
         
+        This function will also remove all associated API keys from the user.
+        
         :param req:
         :param resp:
         :param userid:
@@ -121,8 +123,8 @@ class User:
         if user.get('status') != 'DISABLED':
             raise falcon.HTTPConflict(falcon.HTTP_409, 'User must be disabled before deletion is possible')
         
-        for apikey in user['apikeys']:
-            apikey.delete()
+        for api_key in user.fields.api_keys.all():
+            api_key.delete()
         
         user.delete()
         resp.body = {"deleted": True}
