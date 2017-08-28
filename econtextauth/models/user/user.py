@@ -130,8 +130,17 @@ class User(Model):
             for grp in grps.values():
                 self['groups'].add(grp)
         
+        if updates.get('custom_data'):
+            custom_data = updates.pop('custom_data')
+            if isinstance(custom_data, (list, dict)):
+                if len(custom_data) == 0:
+                    custom_data = dict()
+            else:
+                custom_data = dict()
+            self['custom_data'] = custom_data
+        
         for k, v in updates.items():
-            if k in ('name', 'custom_data', 'status'):
+            if k in ('name', 'status'):
                 self[k] = v
         
         self.save()
