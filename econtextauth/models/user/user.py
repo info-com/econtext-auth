@@ -83,7 +83,7 @@ class User(Model):
             email=email,
             password=password,
             name=name,
-            custom_data=custom_data,
+            custom_data=self.validate_custom_data(custom_data),
             status=status,
             username=username,
             created_at=created_at,
@@ -102,6 +102,11 @@ class User(Model):
             user['groups'].add(grp)
         user.save()
         return user
+    
+    def validate_custom_data(self, custom_data=None):
+        if not custom_data or not isinstance(custom_data, (dict,)):
+            return dict()
+        return custom_data
     
     def update_model(self, updates=None):
         """
@@ -132,12 +137,7 @@ class User(Model):
         
         if updates.get('custom_data'):
             custom_data = updates.pop('custom_data')
-            if isinstance(custom_data, (list, dict)):
-                if len(custom_data) == 0:
-                    custom_data = dict()
-            else:
-                custom_data = dict()
-            self['custom_data'] = custom_data
+            self['custom_data'] = self.validate_custom_data(custom_data)
         
         for k, v in updates.items():
             if k in ('name', 'status'):
