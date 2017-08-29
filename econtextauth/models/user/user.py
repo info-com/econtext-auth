@@ -118,24 +118,24 @@ class User(Model):
             return
         
         updates.pop('created_at', None)
-        if updates.get('email') and updates['email'] != self.fields.email:
+        if 'email' in updates and updates['email'] != self.fields.email:
             self.fields.email = User.check_email(updates.pop('email'))
         
-        if updates.get('password'):
+        if 'password' in updates:
             self.fields.password = User.check_password(updates.pop('password'))
             self.fields.password_modified_at = now()
         
-        if updates.get('applications'):
+        if 'applications' in updates:
             apps = User.check_applications(updates.pop('applications'))
             for app in apps.values():
                 self['applications'].add(app)
         
-        if updates.get('groups'):
+        if 'groups' in updates:
             grps = User.check_groups(updates.pop('groups'))
             for grp in grps.values():
                 self['groups'].add(grp)
         
-        if updates.get('custom_data'):
+        if 'custom_data' in updates:
             custom_data = updates.pop('custom_data')
             self['custom_data'] = self.validate_custom_data(custom_data)
         

@@ -74,6 +74,11 @@ class Group(Model):
         grp['application'] = app
         grp.save()
         return grp
+    
+    def validate_custom_data(self, custom_data=None):
+        if not custom_data or not isinstance(custom_data, (dict,)):
+            return dict()
+        return custom_data
 
     def update_model(self, updates=None):
         """
@@ -89,9 +94,13 @@ class Group(Model):
                 raise falcon.HTTPInvalidParam("A Group with that name already exists")
             updates['name'] = updates['name'].strip()
         
+        if 'custom_data' in updates:
+            custom_data = updates.pop('custom_data')
+            self['custom_data'] = self.validate_custom_data(custom_data)
+        
         updates.pop('created_at', None)
         for k, v in updates.items():
-            if k in ('name', 'description', 'status', 'custom_data'):
+            if k in ('name', 'description', 'status'):
                 self[k] = v
         
         self.save()
