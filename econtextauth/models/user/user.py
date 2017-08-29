@@ -105,7 +105,7 @@ class User(Model):
     
     def validate_custom_data(self, custom_data=None):
         if not custom_data or not isinstance(custom_data, (dict,)):
-            return dict()
+            return None
         return custom_data
     
     def update_model(self, updates=None):
