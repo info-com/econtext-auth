@@ -53,7 +53,7 @@ class Application(Model):
         app = Application(
             name=name.strip(),
             description=description,
-            custom_data=custom_data,
+            custom_data=Application.validate_custom_data(custom_data),
             status=status,
             created_at=created_at
         )
@@ -65,11 +65,6 @@ class Application(Model):
         
         app.save()
         return app
-    
-    def validate_custom_data(self, custom_data=None):
-        if not custom_data or not isinstance(custom_data, (dict,)):
-            return None
-        return custom_data
 
     def update_model(self, updates=None):
         """
@@ -87,7 +82,7 @@ class Application(Model):
         
         if 'custom_data' in updates:
             custom_data = updates.pop('custom_data')
-            self['custom_data'] = self.validate_custom_data(custom_data)
+            self['custom_data'] = Application.validate_custom_data(custom_data)
         
         updates.pop('created_at', None)
         for k, v in updates.items():
@@ -129,3 +124,9 @@ class Application(Model):
         if Application.get(name=name):
             return True
         return False
+    
+    @staticmethod
+    def validate_custom_data(custom_data=None):
+        if not custom_data or not isinstance(custom_data, (dict,)):
+            return None
+        return custom_data

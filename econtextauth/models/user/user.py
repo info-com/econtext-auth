@@ -83,7 +83,7 @@ class User(Model):
             email=email,
             password=password,
             name=name,
-            custom_data=self.validate_custom_data(custom_data),
+            custom_data=User.validate_custom_data(custom_data),
             status=status,
             username=username,
             created_at=created_at,
@@ -102,11 +102,6 @@ class User(Model):
             user['groups'].add(grp)
         user.save()
         return user
-    
-    def validate_custom_data(self, custom_data=None):
-        if not custom_data or not isinstance(custom_data, (dict,)):
-            return None
-        return custom_data
     
     def update_model(self, updates=None):
         """
@@ -137,7 +132,7 @@ class User(Model):
         
         if 'custom_data' in updates:
             custom_data = updates.pop('custom_data')
-            self['custom_data'] = self.validate_custom_data(custom_data)
+            self['custom_data'] = User.validate_custom_data(custom_data)
         
         for k, v in updates.items():
             if k in ('name', 'status'):
@@ -217,3 +212,9 @@ class User(Model):
                     raise falcon.HTTPInvalidParam("Couldn't find group {}".format(grp_id), 'groups')
                 grps[grp_id] = grp
         return grps
+    
+    @staticmethod
+    def validate_custom_data(custom_data=None):
+        if not custom_data or not isinstance(custom_data, (dict,)):
+            return None
+        return custom_data

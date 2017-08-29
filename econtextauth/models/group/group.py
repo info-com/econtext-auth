@@ -57,7 +57,7 @@ class Group(Model):
         grp = Group(
             name=name.strip(),
             description=description,
-            custom_data=custom_data,
+            custom_data=Group.validate_custom_data(custom_data),
             status=status,
             created_at=created_at
         )
@@ -74,11 +74,6 @@ class Group(Model):
         grp['application'] = app
         grp.save()
         return grp
-    
-    def validate_custom_data(self, custom_data=None):
-        if not custom_data or not isinstance(custom_data, (dict,)):
-            return None
-        return custom_data
 
     def update_model(self, updates=None):
         """
@@ -96,7 +91,7 @@ class Group(Model):
         
         if 'custom_data' in updates:
             custom_data = updates.pop('custom_data')
-            self['custom_data'] = self.validate_custom_data(custom_data)
+            self['custom_data'] = User.validate_custom_data(custom_data)
         
         updates.pop('created_at', None)
         for k, v in updates.items():
@@ -133,6 +128,12 @@ class Group(Model):
         if Group.get(id_):
             return True
         return False
+    
+    @staticmethod
+    def validate_custom_data(custom_data=None):
+        if not custom_data or not isinstance(custom_data, (dict,)):
+            return None
+        return custom_data
     
     def already_exists(self, group_name, app=None):
         """
