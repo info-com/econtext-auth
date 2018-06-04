@@ -21,8 +21,8 @@ log = logging.getLogger('econtext')
 
 
 class Group(Model):
-    has_many = ("User",)
     belongs_to = ("Application", )
+    has_and_belongs_to_many = ("User",)
 
     @property
     def json(self):
@@ -91,7 +91,7 @@ class Group(Model):
         
         if 'custom_data' in updates:
             custom_data = updates.pop('custom_data')
-            self['custom_data'] = User.validate_custom_data(custom_data)
+            self['custom_data'] = Group.validate_custom_data(custom_data)
         
         updates.pop('created_at', None)
         for k, v in updates.items():

@@ -3,24 +3,17 @@ import rethinkdb as r
 import falcon
 from econtextauth.models.group import group
 from econtextauth.models.user import user
+from econtext.util.falcon.route import Route
 
 log = logging.getLogger('econtext')
 
 
-class Users:
+class Users(Route):
     """
     Groups
     
     GET  - Retrieve all groups
     """
-    routes = ['groups/group/{groupid}/users']
-    
-    def __init__(self, econtext):
-        self.econtext = econtext
-    
-    @staticmethod
-    def get_route_constructor(*args, **kwargs):
-        return Users(*args)
     
     def on_get(self, req, resp, groupid):
         """

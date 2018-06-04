@@ -10,8 +10,8 @@ log = logging.getLogger('econtext')
 
 
 class Authenticator(object):
-    def __init__(self, conf):
-        self.application_id = conf.get('application_id')
+    def __init__(self, application_id):
+        self.application_id = application_id
         log.info("System application_id is {}".format(self.application_id))
         if self.application_id is None:
             raise Exception("Expected an application_id to authenticate to")

@@ -12,21 +12,6 @@ class eContextError(HTTPError):
     pass
 
 
-def exception_handler(ex, req, resp, params):
-    log.debug("exception_handler")
-    if isinstance(ex, falcon.HTTPError):
-        "If the error is explicitly a falcon error, return it as is"
-        resp.context['exception'] = ex
-        raise ex
-
-    status = falcon.HTTP_500
-    title = str(ex)
-    description = traceback.format_exc()
-    exception = eContextError(status, title, description)
-    resp.context['exception'] = exception
-    raise exception
-
-
 def error_serializer(req, resp, exception):
     """
     Don't actually serialize the exception - just return the dictionary that we

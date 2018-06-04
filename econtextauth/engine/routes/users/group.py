@@ -3,26 +3,17 @@ import falcon
 import rethinkdb as r
 from econtextauth.models.user import user
 from econtextauth.models.group import group
+from econtext.util.falcon.route import Route
 log = logging.getLogger('econtext')
 
 
-class Group:
+class Group(Route):
     """
     Group
 
     POST - Add a Group connection to a User
     DELETE - Remove a Group connection from a User
     """
-    routes = [
-        'users/user/{userid}/group/{groupid}'
-    ]
-    
-    @staticmethod
-    def get_route_constructor(*args, **kwargs):
-        return Group(*args)
-    
-    def __init__(self, econtext):
-        self.econtext = econtext
     
     def on_post(self, req, resp, userid, groupid):
         """

@@ -1,24 +1,17 @@
 import logging
 from econtextauth.models.application import application
+from econtext.util.falcon.route import Route
 import falcon
 
 log = logging.getLogger('econtext')
 
 
-class Users:
+class Users(Route):
     """
     Users
 
     GET  - Retrieve all users associated with a particular application
     """
-    routes = ['applications/application/{appid}/users']
-    
-    def __init__(self, econtext):
-        self.econtext = econtext
-    
-    @staticmethod
-    def get_route_constructor(*args, **kwargs):
-        return Users(*args)
     
     def on_get(self, req, resp, appid):
         """

@@ -1,11 +1,12 @@
 from econtextauth import models
 import logging
 import falcon
+from econtext.util.falcon.route import Route
 
 log = logging.getLogger('econtext')
 
 
-class User:
+class User(Route):
     """
     Users
 
@@ -14,17 +15,6 @@ class User:
     PUT  - Update a user
     DELETE - Remove a user (updates status to deleted - doesn't actually remove the record)
     """
-    routes = [
-        'users/user',
-        'users/user/{userid}'
-    ]
-    
-    @staticmethod
-    def get_route_constructor(*args, **kwargs):
-        return User(*args)
-    
-    def __init__(self, econtext):
-        self.econtext = econtext
     
     def on_post(self, req, resp):
         """

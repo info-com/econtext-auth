@@ -4,14 +4,16 @@ data_files = [
     ('/etc/econtext/auth', [
         'econtextauth/engine/data/econtextauth.ini'
     ]),
-    ('/etc/init.d', [
-        'econtextauth/engine/data/econtextauth-engine'
-    ])
+]
+
+dependency_links = [
+    'git+ssh://git@github.com/info-com/econtext.util#egg=econtext.util-1.0.1',
+    'git+ssh://git@github.com/jspalink/remodel#egg=remodel'
 ]
 
 setup(
     name='econtextauth',
-    version="0.0.1",
+    version="0.0.2",
     author='Jonathan Spalink',
     author_email='jspalink@info.com',
     description='The eContext Auth engine provides authentication (and possibly authorization) services to eContext products',
@@ -27,8 +29,12 @@ setup(
         'validate_email',
         'basicauth',
         'python-dateutil',
-        'bcrypt'
+        'bcrypt',
+        'econtext.util >= 1.0.1',
+        'ujson',
+        'python-jose'
     ],
+    dependency_links=dependency_links,
     
     entry_points={
         'console_scripts': [

@@ -1,119 +1,113 @@
-from gevent import monkey
-monkey.patch_all()
+from gevent import monkey; monkey.patch_all()
 
-import falcon
-import gunicorn.app.base
 import argparse
-from os.path import abspath
-from econtextauth import config
-from econtextauth.engine import routes
-from econtextauth.engine.middleware.econtext import exception_handler, error_serializer
-from econtextauth.engine.middleware.econtext.econtext import EcontextMiddleware
-from econtextauth.engine.middleware.econtext.authenticator import Authenticator
-from econtextauth.engine.middleware.econtext.weblogs import WebLogs
-from falcon import api_helpers
-from multiprocessing import cpu_count
 import remodel.connection
-import logging
+from multiprocessing import cpu_count
+from econtext.util.config import load_config, update_config, config_get
+from econtext.util.falcon import get_app, setup_app, update_app_middleware
+from econtext.util.falcon.route import Routes
+from econtext.util.gunicorn.app import StandaloneApplication
+from econtext.util.log import log, log_add_stream_handler
+from econtextauth.engine.middleware.econtext.authenticator import Authenticator
+import falcon
+import json
 
-log = logging.getLogger('econtext')
-
-# Here's our app!
-app = falcon.API()
-app.add_error_handler(Exception, exception_handler)
-app.set_error_serializer(error_serializer)
 
 ################################################################################
 # Base settings (where to find files)
 ################################################################################
-settings = {
+default_config = {
     'rethinkdb_host': 'localhost',
-    'rethinkdb_port': 28015,
+    'rethinkdb_port': '28015',
     'base_url': 'localhost:8000'
 }
 
 
-################################################################################
-# Define our Gunicorn Application
-################################################################################
-
-class StandaloneApplication(gunicorn.app.base.BaseApplication):
-    """
-    A standalone Gunicorn application that can be started directly in Python
-    without using the gunicorn command line options.
-    """
-
-    def __init__(self, application, options=None):
-        self.options = dict(options or {})
-        self.application = application
-        super(StandaloneApplication, self).__init__()
-
-    def load_config(self):
-        tmp_config = map(
-            lambda item: (item[0].lower(), item[1]),
-            self.options.iteritems()
-        )
-
-        config = dict(
-            (key, value)
-            for key, value in tmp_config
-            if key in self.cfg.settings and value is not None
-        )
-
-        for key, value in config.iteritems():
-            self.cfg.set(key.lower(), value)
-
-    def load(self):
-        return self.application
-
-
-def get_log_level(v=0):
-    if v is None or v == 0:
-        return logging.ERROR
-    elif v > 2:
-        return logging.DEBUG
-    elif v > 1:
-        return logging.INFO
-    elif v > 0:
-        return logging.WARNING
-
-
-def get_log(v):
-    log_level = get_log_level(v)
-    h = logging.StreamHandler()
-    h.setFormatter(logging.Formatter("[%(asctime)s] [%(process)s] [%(levelname)s] %(message)s", "%Y-%m-%d %H:%M:%S %z"))
-    log.addHandler(h)
-    h.setLevel(log_level)
-    log.setLevel(log_level)
-
-
-def setup_app(config):
-    econtext_config = settings
-    if config is None:
-        get_log(2)
-    else:
-        econtext_config.update(dict(config.items('econtextauth')))
-    
-    app._middleware = falcon.api_helpers.prepare_middleware([
-        WebLogs(econtext_config),
-        EcontextMiddleware(),
-        Authenticator(econtext_config)
-    ])
-    
-    rethinkdb_host = econtext_config.get('rethinkdb_host')
-    rethinkdb_port = econtext_config.get('rethinkdb_port', 28015)
+def prepare_econtext_objects(config):
+    rethinkdb_host = config_get(config, 'engine', 'rethinkdb_host')
+    rethinkdb_port = config_get(config, 'engine', 'rethinkdb_port', 28015)
     log.info("Connecting to RethinkDB at {}:{}".format(rethinkdb_host, rethinkdb_port))
     remodel.connection.pool.configure(host=rethinkdb_host, port=rethinkdb_port, db="econtext_users")
 
     route_options = {
-        "application_id": econtext_config.get('application_id')
+        "application_id": config_get(config, 'engine', 'application_id')
     }
+    return route_options
 
-    for route_class in routes.route_classes:
-        if hasattr(route_class, 'routes'):
-            for route in route_class.routes:
-                log.info("Loading route: /api/{}".format(route))
-                app.add_route("/api/{}".format(route), route_class.get_route_constructor(route_options))
+
+def setup_routes(econtext_objects):
+    """
+    Setup our routes here - econtext_objects are passed in to the
+    Route constructors and provide access to common objects in
+    each route (think db connections, a taxonomy object, etc)
+
+    In this example, there are two routes that point to the HelloWorld
+    route.  This is allowed, but you should be very careful here.
+    The reason for doing it this way is that a single Route can handle
+    `on_get` and `on_post`.  However, generally, the `on_get` would
+    be the one that is pointing to `/hello/{name}`.  However, you could
+    also potentially POST to `/hello/{name}` and get behaviour that
+    you're not quite expecting.  Be careful!
+
+    @see http://falcon.readthedocs.io/en/stable/user/tutorial.html
+
+    :param econtext_objects:
+    :return:
+    """
+    from .routes.applications.application import Application
+    from .routes.applications.applications import Applications
+    from .routes.applications.groups import Groups as ApplicationGroups
+    from .routes.applications.users import Users as ApplicationUsers
+    from .routes.groups.group import Group
+    from .routes.groups.groups import Groups
+    from .routes.groups.users import Users as GroupUsers
+    from .routes.users.apikey import Apikey as UsersApikey
+    from .routes.users.application import Application as UsersApplication
+    from .routes.users.group import Group as UsersGroup
+    from .routes.users.search import Search as UsersSearch
+    from .routes.users.user import User
+    from .routes.users.users import Users
+    from .routes.authenticate import Authenticate
+    from .routes.status import Status
+    
+    routes = Routes(econtext_objects)
+    routes.create_route(Application, 'applications/application')
+    routes.create_route(Application, 'applications/application/{appid}')
+    routes.create_route(Applications, 'applications')
+    routes.create_route(ApplicationGroups, 'applications/application/{appid}/groups')
+    routes.create_route(ApplicationUsers, 'applications/application/{appid}/users')
+    routes.create_route(Group, 'groups/group')
+    routes.create_route(Group, 'groups/group/{groupid}')
+    routes.create_route(Groups, 'groups')
+    routes.create_route(GroupUsers, 'groups/group/{groupid}/users')
+    routes.create_route(UsersApikey, 'users/user/{userid}/apikey')
+    routes.create_route(UsersApikey, 'users/user/{userid}/apikey/{apikeyid}')
+    routes.create_route(UsersApplication, 'users/user/{userid}/application/{appid}')
+    routes.create_route(UsersGroup, 'users/user/{userid}/group/{groupid}')
+    routes.create_route(UsersSearch, 'users/search/{search}')
+    routes.create_route(User, 'users/user')
+    routes.create_route(User, 'users/user/{userid}')
+    routes.create_route(Users, 'users')
+    routes.create_route(Authenticate, 'authenticate')
+    routes.create_route(Status, 'status')
+    
+    return routes
+
+
+def error_serializer(req, resp, exception):
+    """
+    Don't actually serialize the exception - just return the dictionary that we
+    want.  The response body itself should be serialized in our middleware.
+
+    @see econtext.engine.middleware.econtext.econtext
+    :type resp: falcon.Response
+
+    """
+    log.debug("error_serializer")
+    resp.body = {"error": exception.to_dict()}
+    log.debug(resp.body)
+    if isinstance(exception, falcon.HTTPUnauthorized):
+        resp.body = json.dumps(resp.body).encode("utf-8")
 
 
 def main():
@@ -122,25 +116,31 @@ def main():
                         help="Configuration file", metavar="PATH")
     parser.add_argument("-v", dest="config_verbose", action="count", default=0, help="Be more or less verbose")
     options = parser.parse_args()
-    get_log(options.config_verbose)
 
-    if options.config_config_file is not None:
-        log.debug("Loading configuration file from %s", abspath(options.config_config_file))
-        config_file = open(abspath(options.config_config_file))
-        config.readfp(config_file)
+    log_add_stream_handler(options.config_verbose)
+    config = load_config(options.config_config_file, default_config)
+    for section in {'server', 'engine', 'config'}.difference(set(config.sections())):
+        config.add_section(section)
 
     del options.config_config_file
     del options.config_verbose
 
+    config_updates = dict()
     for k, v in options.__dict__.items():
         if v is not None:
             section, key = k.split("_", 1)
-            log.debug("Overriding configuration: {} {} = {}".format(section, key, v))
-            config.set(section, key, str(v))
+            if section not in config_updates:
+                config_updates[section] = dict()
+            config_updates[section][key] = str(v)
+    update_config(config, config_updates)
 
-    setup_app(config)
+    app = get_app(config_get(config, 'config', 'access_log'), config_get(config, 'config', 'error_log'), middlewares=[Authenticator(config_get(config, 'engine', 'application_id'))])
+    app.set_error_serializer(error_serializer)
+    econtext_objects = prepare_econtext_objects(config)
+    routes = setup_routes(econtext_objects)
+    setup_app(app, routes, route_prefix='api')
+
     server_config = dict(config.items('server'))
-
     options = {
         'worker_class': 'gevent',
         'bind': "{}:{}".format(server_config.get('host', '0.0.0.0'), server_config.get('port', '8000')),

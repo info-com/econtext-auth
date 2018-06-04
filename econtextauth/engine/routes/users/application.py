@@ -3,27 +3,18 @@ import falcon
 import rethinkdb as r
 from econtextauth.models.user import user
 from econtextauth.models.application import application
+from econtext.util.falcon.route import Route
 
 log = logging.getLogger('econtext')
 
 
-class Application:
+class Application(Route):
     """
     Application
     
     POST - Add an Application connection to a User
     DELETE - Remove an Application connection from a User
     """
-    routes = [
-        'users/user/{userid}/application/{appid}'
-    ]
-    
-    @staticmethod
-    def get_route_constructor(*args, **kwargs):
-        return Application(*args)
-    
-    def __init__(self, econtext):
-        self.econtext = econtext
     
     def on_post(self, req, resp, userid, appid):
         """

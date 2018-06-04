@@ -2,33 +2,20 @@ import logging
 import remodel.utils
 import remodel.connection
 import falcon
+from econtext.util.falcon.route import Route
+from econtext.util.log import log
 from econtextauth.models.application import application
 
-log = logging.getLogger('econtext')
 
-
-class Application:
+class Application(Route):
     """
-       Application
-
-       POST - Create a new Application
-       GET  - Retrieve an Application
-       PUT  - Update an application
-       DELETE - Remove an applciation (updates status to deleted - doesn't actually remove the record)
-       """
-    routes = [
-        'applications/application',
-        'applications/application/{appid}'
-    ]
+    Application
     
-    remodel.connection.pool.configure(db="econtext_users")
-    
-    @staticmethod
-    def get_route_constructor(*args, **kwargs):
-        return Application(*args)
-    
-    def __init__(self, econtext):
-        self.econtext = econtext
+    POST - Create a new Application
+    GET  - Retrieve an Application
+    PUT  - Update an application
+    DELETE - Remove an applciation (updates status to deleted - doesn't actually remove the record)
+    """
     
     def on_post(self, req, resp):
         """
@@ -44,6 +31,7 @@ class Application:
             description=body.get('description'),
             status=body.get('status', 'ENABLED'),
             custom_data=body.get('custom_data'),
+            jwt_secret=body.get('jwt_secret'),
             id_=body.get('id')
         )
         resp.body = {"application": app}
@@ -97,7 +85,7 @@ class Application:
         :param appid:
         :return:
         """
-        if appid == self.econtext.get('application_id'):
+        if appid == self.meta.get('application_id'):
             raise falcon.HTTPInvalidParam("Cannot delete the system application", 'appid')
         app = application.Application.get(appid)
         if app is None:
@@ -105,20 +93,20 @@ class Application:
         if app.get('status') != 'DISABLED':
             raise falcon.HTTPConflict(falcon.HTTP_409, 'Application must be disabled before deletion is possible')
         
-        groups = [g for g in app.fields.groups.all()]
-        if len(groups) > 0:
+        if app.fields.groups.count() > 0:
             raise falcon.HTTPConflict(
                 falcon.HTTP_409,
                 'Groups must be deleted before application deletion is possible'
             )
         
-        users = [a for a in app.fields.users.all()]
-        if len(users) > 0:
+        if app.fields.users.count() > 0:
             raise falcon.HTTPConflict(
                 falcon.HTTP_409,
                 'Users must be deleted or updated before application deletion is possible'
             )
         
+        del app['users']
+        del app['groups']
         app.delete()
         resp.body = {"deleted": True}
         return True

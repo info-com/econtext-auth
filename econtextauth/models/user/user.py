@@ -186,7 +186,7 @@ class User(Model):
     def check_password(password):
         if len(password.strip()) < 7:
             raise falcon.HTTPInvalidParam("Password must be at least 7 characters long", 'password')
-        return bcrypt.hashpw(password.strip().encode('utf8'), bcrypt.gensalt())
+        return bcrypt.hashpw(password.strip().encode('utf8'), bcrypt.gensalt()).decode('utf8')
     
     @staticmethod
     def check_applications(applications):

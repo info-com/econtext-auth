@@ -1,11 +1,12 @@
 import logging
 import falcon
 from econtextauth import models
+from econtext.util.falcon.route import Route
 
 log = logging.getLogger('econtext')
 
 
-class Apikey:
+class Apikey(Route):
     """
     Search
 
@@ -13,17 +14,6 @@ class Apikey:
     PUT - updates name, desc, or status
     DELETE - REMOVES an APIKEY!
     """
-    routes = [
-        'users/user/{userid}/apikey',
-        'users/user/{userid}/apikey/{apikeyid}'
-    ]
-
-    @staticmethod
-    def get_route_constructor(*args, **kwargs):
-        return Apikey(*args)
-
-    def __init__(self, econtext):
-        self.econtext = econtext
     
     def on_post(self, req, resp, userid):
         """

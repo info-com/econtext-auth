@@ -16,6 +16,7 @@ from remodel.models import Model, before_save
 from rethinkdb import now
 import logging
 import falcon
+import uuid
 log = logging.getLogger('econtext')
 
 
@@ -32,6 +33,7 @@ class Application(Model):
             'name': self.get('name'),
             'description': self.get('description'),
             'custom_data': self.get('custom_data'),
+            'jwt_secret': str(self.get('jwt_secret') or ''),
             'status': self.get('status'),
             'created_at': str(self.get('created_at') or ''),
             'modified_at': str(self.get('modified_at') or ''),
@@ -39,7 +41,7 @@ class Application(Model):
         }
     
     @staticmethod
-    def create_new(name, description=None, status='ENABLED', custom_data=None, id_=None, *args, **kwargs):
+    def create_new(name, description=None, status='ENABLED', custom_data=None, id_=None, jwt_secret=None, *args, **kwargs):
         """
         Create a new Application object
         """
@@ -55,7 +57,8 @@ class Application(Model):
             description=description,
             custom_data=Application.validate_custom_data(custom_data),
             status=status,
-            created_at=created_at
+            created_at=created_at,
+            jwt_secret=jwt_secret or Application.generate_jwt_secret()
         )
         
         if id_ and id_.strip() != '':
@@ -86,7 +89,7 @@ class Application(Model):
         
         updates.pop('created_at', None)
         for k, v in updates.items():
-            if k in ('name', 'description', 'status'):
+            if k in ('name', 'description', 'status', 'jwt_secret'):
                 self[k] = v
         
         self.save()
@@ -130,3 +133,11 @@ class Application(Model):
         if not custom_data or not isinstance(custom_data, (dict,)):
             return None
         return custom_data
+    
+    @staticmethod
+    def generate_jwt_secret():
+        """
+        Generate a random 32bit string
+        :return:
+        """
+        return uuid.uuid4().hex

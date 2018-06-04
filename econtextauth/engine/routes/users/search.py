@@ -1,23 +1,16 @@
 from econtextauth.models.user import user, apikey
 import logging
+from econtext.util.falcon.route import Route
 
 log = logging.getLogger('econtext')
 
 
-class Search:
+class Search(Route):
     """
     Search
     
     GET - Search for a user
     """
-    routes = ['users/search/{search}', ]
-    
-    @staticmethod
-    def get_route_constructor(*args, **kwargs):
-        return Search(*args)
-    
-    def __init__(self, econtext):
-        self.econtext = econtext
     
     def on_get(self, req, resp, search):
         """
@@ -53,6 +46,6 @@ class Search:
             ).run()
         ])
         users.update(custom_data_users)
-        users_dict = {u.fields.id:u for u in users}
-        resp.body = {"users": users_dict.values()}
+        users_dict = {u.fields.id: u for u in users}
+        resp.body = {"users": list(users_dict.values())}
         return True

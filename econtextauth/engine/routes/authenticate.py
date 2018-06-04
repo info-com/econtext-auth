@@ -1,25 +1,18 @@
 from econtextauth.models.user.user import User
 from econtextauth.models.user.apikey import ApiKey
 import bcrypt
-import logging
+from econtext.util.falcon.route import Route
+from jose import jwt
+import datetime
+from econtext.util.log import log
 
-log = logging.getLogger('econtext')
 
-
-class Authenticate:
+class Authenticate(Route):
     """
     Authenticate
     
     Authenticate against the eContext user store
     """
-    routes = ['authenticate']
-    
-    @staticmethod
-    def get_route_constructor(*args, **kwargs):
-        return Authenticate(*args)
-    
-    def __init__(self, options):
-        self.options = options
     
     def on_post(self, req, resp):
         """
@@ -64,6 +57,7 @@ class Authenticate:
         try:
             hashed_password = None
             u = None
+            access_token = None
             
             if body['type'] == 'username':
                 u = User.get(email=body['credential']['username'])
@@ -82,11 +76,13 @@ class Authenticate:
                 log.debug("Failed check_pass")
                 raise Exception()
             
-            applications = set([app.fields.id for app in u.fields.applications.all() if app.get('status') != 'DISABLED'])
+            applications = {app.fields.id: app for app in u.fields.applications.all() if app.get('status') != 'DISABLED'}
             if body['application'] not in applications:
                 raise Exception()
             
-            resp.body = {"authenticated": True, "user": u}
+            access_token = Authenticate.build_access_token(u, applications.get(body['application']))
+            
+            resp.body = {"authenticated": True, "user": u, "access_token": access_token}
         except Exception as e:
             log.exception(e)
             resp.body = {"authenticated": False, "user": None}
@@ -117,3 +113,37 @@ class Authenticate:
             log.debug("some error occurred: {}".format(e))
             return False
         return passed
+    
+    @staticmethod
+    def build_access_token(u, a):
+        """
+        Build an access_token with a set of claims describing the user.
+        
+        :param u: User
+        :param a: Application
+        :return: An access token object
+        """
+        access_token = None
+        secret = a.get('jwt_secret').strip()
+        if secret:
+            now = datetime.datetime.utcnow()
+            tomorrow = now + datetime.timedelta(days=1)
+            iss = 'https://auth.econtext.com/api/authenticate'
+            groups = [g.get('name') for g in u.fields.groups.all() if g['application']['id'] == a.fields.id]
+            
+            claims = {
+                'exp': int(tomorrow.timestamp()),   # tomorrow
+                'nbf': int(now.timestamp()),        # now
+                'iat': int(now.timestamp()),        # now
+                'iss': iss,                         # URL for auth
+                'sub': u.get('id'),                 # user id
+                'aud': a.get('id'),                 # target application,
+                'groups': groups
+            }
+            access_token = jwt.encode(
+                claims,
+                secret,
+                algorithm='HS256'
+            )
+        
+        return access_token

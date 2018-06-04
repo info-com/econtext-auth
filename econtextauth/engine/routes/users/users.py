@@ -1,23 +1,16 @@
 from econtextauth.models.user import user
 import logging
+from econtext.util.falcon.route import Route
 
 log = logging.getLogger('econtext')
 
 
-class Users:
+class Users(Route):
     """
         Users
     
         GET  - Retrieve all users
     """
-    routes = ['users']
-    
-    def __init__(self, econtext):
-        self.econtext = econtext
-    
-    @staticmethod
-    def get_route_constructor(*args):
-        return Users(*args)
     
     def on_get(self, req, resp):
         """
