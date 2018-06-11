@@ -4,6 +4,9 @@ data_files = [
     ('/etc/econtext/auth', [
         'econtextauth/engine/data/econtextauth.ini'
     ]),
+    ('/etc/init.d', [
+        'econtextauth/engine/data/econtextauth-engine'
+    ])
 ]
 
 dependency_links = [
@@ -13,7 +16,7 @@ dependency_links = [
 
 setup(
     name='econtextauth',
-    version="0.0.2",
+    version="0.0.3",
     author='Jonathan Spalink',
     author_email='jspalink@info.com',
     description='The eContext Auth engine provides authentication (and possibly authorization) services to eContext products',
