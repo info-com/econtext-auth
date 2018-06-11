@@ -98,7 +98,7 @@ class ApiKey(Model):
     def generate_25_char_id():
         x = 0
         while True:
-            api_id = ''.join(random.choice('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ') for n in xrange(25))
+            api_id = ''.join(random.choice('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ') for n in range(25))
             if not ApiKey.get(api_id):
                 return api_id
             x += 1
