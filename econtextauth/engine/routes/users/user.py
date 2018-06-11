@@ -48,7 +48,7 @@ class User(Route):
                 groups=body.get('groups')
             )
         except KeyError as e:
-            raise falcon.HTTPMissingParam(e.message)
+            raise falcon.HTTPMissingParam(str(e))
         except Exception as e:
             raise e
         
