@@ -124,7 +124,7 @@ class Authenticate(Route):
         :return: An access token object
         """
         access_token = None
-        secret = a.get('jwt_secret').strip()
+        secret = a.get('jwt_secret', '').strip()
         if secret:
             now = datetime.datetime.utcnow()
             tomorrow = now + datetime.timedelta(days=1)
