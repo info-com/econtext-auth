@@ -21,7 +21,7 @@ class AuthCache(object):
         self.auth_index = dict()
         pass
     
-    def check_auth(self, auth):
+    def check_auth(self, type, username, password, ip_address=None, *args, **kwargs):
         """
         Check whether an authentication attempt has occurred.
         
@@ -46,16 +46,28 @@ class AuthCache(object):
         :return bool False when we detect "abuse"
         """
         
-        if self.check_credentials(auth):
+        if self.check_credentials(type, username, password):
             "If we detect too many attempts with the same credentials..."
             return False
         
-        if self.check_ip_attempts():
+        if self.check_ip_attempts(ip_address):
             "If we detect too many attempts from the same IP address..."
             return False
         
         self.cleanup()
         return True
+    
+    def add_credential(self, type, username, password, ip_address=None, *args, **kwargs):
+        key = (type, username, password)
+        self.auth_index[key] = {
+            'attempts': 0,
+            'most_recent': None
+        }
+        if ip_address:
+            self.ip_index[ip_address] = {
+                'attempts': 0,
+                'most_recent': None
+            }
     
     def check_credentials(self, type, username, password):
         """
@@ -64,10 +76,8 @@ class AuthCache(object):
         """
         key = (type, username, password)
         if key not in self.auth_index:
-            self.auth_index[key] = {
-                'attempts': 0,
-                'most_recent': None
-            }
+            return False
+        
         self.auth_index[key]['attempts'] += 1
         self.auth_index[key]['most_recent'] = datetime.now()
         if self.auth_index[key]['attempts'] >= 3:
@@ -78,10 +88,8 @@ class AuthCache(object):
         if ip_address is None:
             return False
         if ip_address not in self.ip_index:
-            self.ip_index = {
-                'attempts': 0,
-                'most_recent': None
-            }
+            return False
+        
         self.ip_index[ip_address]['attempts'] += 1
         self.ip_index[ip_address]['most_recent'] = datetime.now()
         
