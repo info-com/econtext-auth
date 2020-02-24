@@ -4,9 +4,9 @@ data_files = [
     ('/etc/econtext/auth', [
         'econtextauth/engine/data/econtextauth.ini'
     ]),
-    ('/etc/init.d', [
-        'econtextauth/engine/data/econtextauth-engine'
-    ])
+    #('/etc/init.d', [
+    #    'econtextauth/engine/data/econtextauth-engine'
+    #])
 ]
 
 dependency_links = [

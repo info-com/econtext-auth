@@ -78,7 +78,7 @@ def main():
         result = response.json()
         message = result['econtext']['traceback']
     except:
-        pass
+        message = response.text
     
     log.error("{}: {}".format(title, message))
     log.error("Full result: {}".format(json.dumps(result)))

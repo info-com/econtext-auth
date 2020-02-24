@@ -74,7 +74,7 @@ class Authenticate(Route):
                 raise Exception()
             if not Authenticate.check_pass(hashed_password.encode('utf8'), body['credential']['password'].encode('utf8')):
                 log.debug("Failed check_pass")
-                raise Exception()
+                raise Exception("Failed check_pass")
             
             applications = {app.fields.id: app for app in u.fields.applications.all() if app.get('status') != 'DISABLED'}
             if body['application'] not in applications:

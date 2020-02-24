@@ -11,6 +11,7 @@ from econtext.util.log import log, log_add_stream_handler
 from econtextauth.engine.middleware.econtext.authenticator import Authenticator
 import falcon
 import json
+from .auth_cache import AuthCache
 
 
 ################################################################################
@@ -28,9 +29,12 @@ def prepare_econtext_objects(config):
     rethinkdb_port = config_get(config, 'engine', 'rethinkdb_port', 28015)
     log.info("Connecting to RethinkDB at {}:{}".format(rethinkdb_host, rethinkdb_port))
     remodel.connection.pool.configure(host=rethinkdb_host, port=rethinkdb_port, db="econtext_users")
-
+    
+    auth_cache = AuthCache(size=50, ip_attempt_limit=20)
+    
     route_options = {
-        "application_id": config_get(config, 'engine', 'application_id')
+        "application_id": config_get(config, 'engine', 'application_id'),
+        "auth_cache": auth_cache
     }
     return route_options
 
