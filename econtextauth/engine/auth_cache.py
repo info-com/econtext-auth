@@ -7,8 +7,7 @@ multiple username and password combinations, although that requires
 that we start making a note of the incoming IP address.
 """
 from datetime import datetime
-import logging
-log = logging.getLogger('econtextauth.engine.auth_cache')
+from econtext.util.log import log
 
 
 class AuthCache(object):
