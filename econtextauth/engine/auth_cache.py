@@ -81,9 +81,11 @@ class AuthCache(object):
         
         self.auth_index[key]['attempts'] += 1
         self.auth_index[key]['most_recent'] = datetime.now()
+        log.debug("check_credentials: %s -> %s", key, self.auth_index[key])
+        
         if self.auth_index[key]['attempts'] >= 3:
-            log.debug("Credentials have been attempted %s times", self.auth_index[key]['attempts'])
             return True
+        
         return False
     
     def check_ip_attempts(self, ip_address):
@@ -96,7 +98,8 @@ class AuthCache(object):
         
         self.ip_index[ip_address]['attempts'] += 1
         self.ip_index[ip_address]['most_recent'] = datetime.now()
-        
+
+        log.debug("check_ip_attempts: %s -> %s", ip_address, self.ip_index[ip_address])
         if self.ip_index[ip_address]['attempts'] >= self.ip_attempt_limit:
             return True
         
