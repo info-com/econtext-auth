@@ -57,9 +57,10 @@ class Authenticate(Route):
         username = body['credential']['username']
         password = body['credential']['password']
         ip_address = body.get("ip_address")
+        auth_cache = self.meta['auth_cache']
         
         try:
-            if not self.meta['auth_cache'].check_auth(type, username, password, ip_address):
+            if not auth_cache.check_auth(type, username, password, ip_address):
                 raise Exception("Failed in auth_cache check")
             
             hashed_password = None
@@ -77,11 +78,9 @@ class Authenticate(Route):
                     u = a.fields.user
             
             if not Authenticate.check_status(u):
-                self.meta['auth_cache'].add_credential(type, username, password, ip_address)
                 log.debug("Failed check_status")
                 raise Exception()
             if not Authenticate.check_pass(hashed_password.encode('utf8'), body['credential']['password'].encode('utf8')):
-                self.meta['auth_cache'].add_credential(type, username, password, ip_address)
                 log.debug("Failed check_pass")
                 raise Exception("Failed check_pass")
             
@@ -94,7 +93,7 @@ class Authenticate(Route):
             resp.body = {"authenticated": True, "user": u, "access_token": access_token}
         except Exception as e:
             log.exception(e)
-            self.meta['auth_cache'].add_credential(type, username, password, ip_address)
+            auth_cache.add_credential(type, username, password, ip_address)
             resp.body = {"authenticated": False, "user": None}
         
         return True
