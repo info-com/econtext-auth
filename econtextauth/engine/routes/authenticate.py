@@ -4,6 +4,7 @@ import bcrypt
 from econtext.util.falcon.route import Route
 from jose import jwt
 import datetime
+import json
 from econtext.util.log import log
 
 
@@ -90,7 +91,7 @@ class Authenticate(Route):
             
             resp.body = {"authenticated": True, "user": u, "access_token": access_token}
         except Exception as e:
-            log.exception(e)
+            log.debug("authentication failed: %s", json.dumps(body))
             auth_cache.add_credential(type, username, password, ip_address)
             resp.body = {"authenticated": False, "user": None}
         
