@@ -79,7 +79,7 @@ class AuthCache(object):
             log.debug("check_credentials -- credentials not yet logged")
             return False
         
-        self.auth_index[key]['attempts'] += 1
+        self.auth_index[key]['attempts'] = self.auth_index[key]['attempts'] + 1
         self.auth_index[key]['most_recent'] = datetime.now()
         log.debug("check_credentials: %s -> %s", key, self.auth_index[key])
         
@@ -96,7 +96,7 @@ class AuthCache(object):
             log.debug("check_ip_attempts -- ip_address not yet logged")
             return False
         
-        self.ip_index[ip_address]['attempts'] += 1
+        self.ip_index[ip_address]['attempts'] = self.ip_index[ip_address]['attempts'] + 1
         self.ip_index[ip_address]['most_recent'] = datetime.now()
 
         log.debug("check_ip_attempts: %s -> %s", ip_address, self.ip_index[ip_address])
