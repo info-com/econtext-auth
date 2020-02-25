@@ -106,7 +106,9 @@ class AuthCache(object):
     
     def __cleanup_expired(self):
         keys = list(self.auth_index.keys())
+        log.debug("__cleanup_expired (ttl: %s)", self.ttl)
         for key in keys:
+            log.debug(" * time since most_recent: %s", (datetime.now() - self.auth_index[key]['most_recent']).total_seconds())
             if (datetime.now() - self.auth_index[key]['most_recent']).total_seconds() >= self.ttl:
                 log.debug("cleanup - removing expired %s", key)
                 del self.auth_index[key]
