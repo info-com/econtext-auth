@@ -53,12 +53,12 @@ class Authenticate(Route):
         :return:
         """
         body = req.context['body']
+        type = body['type']
+        username = body['credential']['username']
+        password = body['credential']['password']
+        ip_address = body.get("ip_address")
         
         try:
-            type = body['type']
-            username = body['credential']['username']
-            password = body['credential']['password']
-            ip_address = body.get("ip_address")
             if not self.meta['auth_cache'].check_auth(type, username, password, ip_address):
                 raise Exception("Failed in auth_cache check")
             
@@ -94,6 +94,7 @@ class Authenticate(Route):
             resp.body = {"authenticated": True, "user": u, "access_token": access_token}
         except Exception as e:
             log.exception(e)
+            self.meta['auth_cache'].add_credential(type, username, password, ip_address)
             resp.body = {"authenticated": False, "user": None}
         
         return True
