@@ -12,7 +12,7 @@ from econtext.util.log import log
 
 class AuthCache(object):
     
-    def __init__(self, size=50, ip_attempt_limit=20, *args, **kwargs):
+    def __init__(self, size=50, ip_attempt_limit=20, ttl=300, *args, **kwargs):
         """
         :param size int: The number of attempts to remember
         """
@@ -20,6 +20,8 @@ class AuthCache(object):
         self.ip_attempt_limit = ip_attempt_limit
         self.ip_index = dict()
         self.auth_index = dict()
+        self.ttl = ttl
+        log.debug("AuthCache: size=%s  ip_attempt_limit=%s  ttl=%s", size, ip_attempt_limit, ttl)
     
     def check_auth(self, type, username, password, ip_address=None, *args, **kwargs):
         """
@@ -102,18 +104,36 @@ class AuthCache(object):
         
         return False
     
+    def __cleanup_expired(self):
+        keys = list(self.auth_index.keys())
+        for key in keys:
+            if datetime.now() - self.auth_index[key]['most_recent'] >= self.ttl:
+                log.debug("cleanup - removing expired %s", key)
+                del self.auth_index[key]
+        
+        keys = list(self.ip_index.keys())
+        for key in keys:
+            if datetime.now() - self.ip_index[key]['most_recent'] >= self.ttl:
+                log.debug("cleanup - removing expired %s", key)
+                del self.ip_index[key]
+    
     def cleanup(self):
         """
-        Remove items from this object if we're too big
+        Remove items from this object if we're too big, or if they're expired
         """
         if len(self.ip_index) > self.size:
             ip_addresses = sorted(self.ip_index, key=lambda k: self.ip_index[k]['most_recent'], reverse=True)
-            for k in ip_addresses[self.size:]:
-                log.debug("cleanup - removing %s", k)
-                del self.ip_index[k]
+            for key in ip_addresses[self.size:]:
+                log.debug("cleanup - removing %s", key)
+                del self.ip_index[key]
+        
         if len(self.auth_index) > self.size:
             credentials = sorted(self.auth_index, key=lambda k: self.auth_index[k]['most_recent'], reverse=True)
-            for k in credentials[self.size:]:
-                log.debug("cleanup - removing %s", k)
-                del self.auth_index[k]
+            for key in credentials[self.size:]:
+                log.debug("cleanup - removing %s", key)
+                del self.auth_index[key]
+        
+        # remove items that are too old...
+        self.__cleanup_expired()
+        
         return True
