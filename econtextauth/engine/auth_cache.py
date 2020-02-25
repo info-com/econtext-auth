@@ -59,15 +59,18 @@ class AuthCache(object):
     
     def add_credential(self, type, username, password, ip_address=None, *args, **kwargs):
         key = (type, username, password)
-        self.auth_index[key] = {
-            'attempts': 0,
-            'most_recent': None
-        }
+        if key not in self.auth_index:
+            self.auth_index[key] = {'attempts': 0, 'most_recent': None}
+        self.auth_index[key]['attempts'] += 1
+        self.auth_index[key]['most_recent'] = datetime.now()
+        
         if ip_address:
-            self.ip_index[ip_address] = {
-                'attempts': 0,
-                'most_recent': None
-            }
+            if ip_address not in self.ip_index:
+                self.ip_index[ip_address] = {'attempts': 0, 'most_recent': None}
+            self.ip_index[ip_address]['attempts'] += 1
+            self.ip_index[ip_address]['most_recent'] = datetime.now()
+        
+        return
     
     def check_credentials(self, type, username, password):
         """
@@ -79,10 +82,7 @@ class AuthCache(object):
             log.debug("check_credentials -- credentials not yet logged")
             return False
         
-        self.auth_index[key]['attempts'] = self.auth_index[key]['attempts'] + 1
-        self.auth_index[key]['most_recent'] = datetime.now()
         log.debug("check_credentials: %s -> %s", key, self.auth_index[key])
-        
         if self.auth_index[key]['attempts'] >= 3:
             return True
         
@@ -95,9 +95,6 @@ class AuthCache(object):
         if ip_address not in self.ip_index:
             log.debug("check_ip_attempts -- ip_address not yet logged")
             return False
-        
-        self.ip_index[ip_address]['attempts'] = self.ip_index[ip_address]['attempts'] + 1
-        self.ip_index[ip_address]['most_recent'] = datetime.now()
 
         log.debug("check_ip_attempts: %s -> %s", ip_address, self.ip_index[ip_address])
         if self.ip_index[ip_address]['attempts'] >= self.ip_attempt_limit:
