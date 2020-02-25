@@ -44,7 +44,7 @@ class AuthCache(object):
         
         :return bool False when we detect "abuse"
         """
-        
+        log.debug("check_auth")
         if self.check_credentials(type, username, password):
             "If we detect too many attempts with the same credentials..."
             return False
