@@ -48,16 +48,17 @@ class AuthCache(object):
         :return bool False when we detect "abuse"
         """
         log.debug("check_auth")
+        response = True
         if self.check_credentials(type, username, password):
             "If we detect too many attempts with the same credentials..."
-            return False
+            response = False
         
-        if self.check_ip_attempts(ip_address):
+        elif self.check_ip_attempts(ip_address):
             "If we detect too many attempts from the same IP address..."
-            return False
+            response = False
         
         self.cleanup()
-        return True
+        return response
     
     def add_credential(self, type, username, password, ip_address=None, *args, **kwargs):
         key = (type, username, password)
@@ -106,9 +107,7 @@ class AuthCache(object):
     
     def __cleanup_expired(self):
         keys = list(self.auth_index.keys())
-        log.debug("__cleanup_expired (ttl: %s)", self.ttl)
         for key in keys:
-            log.debug(" * time since most_recent: %s", (datetime.now() - self.auth_index[key]['most_recent']).total_seconds())
             if (datetime.now() - self.auth_index[key]['most_recent']).total_seconds() >= self.ttl:
                 log.debug("cleanup - removing expired %s", key)
                 del self.auth_index[key]
