@@ -30,7 +30,7 @@ def prepare_econtext_objects(config):
     log.info("Connecting to RethinkDB at {}:{}".format(rethinkdb_host, rethinkdb_port))
     remodel.connection.pool.configure(host=rethinkdb_host, port=rethinkdb_port, db="econtext_users")
     
-    auth_cache = AuthCache(size=50, ip_attempt_limit=20)
+    auth_cache = AuthCache(size=5, ip_attempt_limit=20)
     
     route_options = {
         "application_id": config_get(config, 'engine', 'application_id'),
