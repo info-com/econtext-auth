@@ -19,7 +19,6 @@ class AuthCache(object):
         self.ip_attempt_limit = ip_attempt_limit
         self.ip_index = dict()
         self.auth_index = dict()
-        pass
     
     def check_auth(self, type, username, password, ip_address=None, *args, **kwargs):
         """
@@ -76,18 +75,22 @@ class AuthCache(object):
         """
         key = (type, username, password)
         if key not in self.auth_index:
+            log.debug("check_credentials -- credentials not yet logged")
             return False
         
         self.auth_index[key]['attempts'] += 1
         self.auth_index[key]['most_recent'] = datetime.now()
         if self.auth_index[key]['attempts'] >= 3:
+            log.debug("Credentials have been attempted %s times", self.auth_index[key]['attempts'])
             return True
         return False
     
     def check_ip_attempts(self, ip_address):
         if ip_address is None:
+            log.debug("check_ip_attempts -- no ip_address given")
             return False
         if ip_address not in self.ip_index:
+            log.debug("check_ip_attempts -- ip_address not yet logged")
             return False
         
         self.ip_index[ip_address]['attempts'] += 1
@@ -105,9 +108,11 @@ class AuthCache(object):
         if len(self.ip_index) > self.size:
             ip_addresses = sorted(self.ip_index, key=lambda k: self.ip_index[k]['most_recent'], reverse=True)
             for k in ip_addresses[self.size:]:
+                log.debug("cleanup - removing %s", k)
                 del self.ip_index[k]
         if len(self.auth_index) > self.size:
             credentials = sorted(self.auth_index, key=lambda k: self.auth_index[k]['most_recent'], reverse=True)
             for k in credentials[self.size:]:
+                log.debug("cleanup - removing %s", k)
                 del self.auth_index[k]
         return True
