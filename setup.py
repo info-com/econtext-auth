@@ -16,7 +16,7 @@ dependency_links = [
 
 setup(
     name='econtextauth',
-    version="0.0.3",
+    version="1.0.4",
     author='Jonathan Spalink',
     author_email='jspalink@info.com',
     description='The eContext Auth engine provides authentication (and possibly authorization) services to eContext products',
