@@ -17,7 +17,7 @@ class Authenticator(object):
             raise Exception("Expected an application_id to authenticate to")
     
     def process_request(self, req, resp):
-        if req.path == '/api/ping':
+        if req.path in {'/api/ping', '/api/status'}:
             return True
         
         log.debug("authenticator.process_request")
