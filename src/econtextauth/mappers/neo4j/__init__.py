@@ -5,6 +5,7 @@ from .organization import Organization
 from .data import Data
 from .group import Group
 from .user import User
+from neomodel import db
 
 """
 Indexes:
@@ -39,3 +40,23 @@ CALL db.index.fulltext.createNodeIndex(
 CALL db.index.fulltext.queryNodes("broad_search_index", "econtext") YIELD node, score
 RETURN node, score
 """
+
+
+def get_name():
+    """
+    Return the name of the mapper
+    """
+    return "neo4j"
+
+
+def check_connection():
+    """
+    Run a simple query to see if the connection exists
+    """
+    result = False
+    try:
+        results, meta = db.cypher_query("Match () RETURN 1 LIMIT 1")
+        result = True
+    except:
+        raise Exception("Could not connect to Neo4j")
+    return result

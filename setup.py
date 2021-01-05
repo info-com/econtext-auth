@@ -4,13 +4,9 @@ data_files = [
     ('/etc/econtextauth', [
         'src/econtextauth/data/econtextauth.ini'
     ]),
-    #('/etc/init.d', [
-    #    'econtextauth/engine/data/econtextauth-engine'
-    #])
-]
-
-dependency_links = [
-    'git+ssh://git@github.com/info-com/econtext.util#egg=econtext-util'
+    # ('/etc/init.d', [
+    #     'econtextauth/engine/data/econtextauth-engine'
+    # ])
 ]
 
 setup(
@@ -32,9 +28,8 @@ setup(
         'econtext.util @ git+ssh://git@github.com/info-com/econtext.util@1.0.11',
         'ujson',
         'neomodel',
-        'python-jose'  #jwt
+        'python-jose'  # jwt
     ],
-    dependency_links=dependency_links,
     
     entry_points={
         'console_scripts': [

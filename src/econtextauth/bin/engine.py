@@ -88,7 +88,7 @@ def setup_routes(route_objects):
     from ..engine.routes.users.user import User
     from ..engine.routes.users.users import Users
     from ..engine.routes.authenticate import Authenticate
-    # from ..engine.routes.status import Status
+    from ..engine.routes.status import Status
     
     routes = Routes(route_objects)
     # Applications
@@ -116,7 +116,7 @@ def setup_routes(route_objects):
     routes.create_route(User, 'users/user/{userid}')
     routes.create_route(Users, 'users')
     routes.create_route(Authenticate, 'authenticate')
-    # routes.create_route(Status, 'status')
+    routes.create_route(Status, 'status')
     
     return routes
 
