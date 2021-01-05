@@ -10,7 +10,7 @@ data_files = [
 ]
 
 dependency_links = [
-    'git+ssh://git@github.com/info-com/econtext.util#egg=econtext.util-1.0.11'
+    'git+ssh://git@github.com/info-com/econtext.util#egg=econtext-util-1.0.11'
 ]
 
 setup(
