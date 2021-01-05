@@ -29,7 +29,7 @@ setup(
         'gunicorn',
         'basicauth',
         'bcrypt',
-        'econtext.util == 1.0.11',
+        'econtext.util @ git+ssh://git@github.com/info-com/econtext.util@1.0.11',
         'ujson',
         'neomodel',
         'python-jose'  #jwt
