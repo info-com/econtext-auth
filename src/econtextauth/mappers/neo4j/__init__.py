@@ -34,8 +34,14 @@ CALL db.index.fulltext.createNodeIndex(
     "broad_search_index",
     ["User", "Organization"],
     ["username", "email", "name", "description"],
-    { analyzer: 'unicode_whitespace' }
+    { analyzer: 'standard-no-stop-words' }
 )
+
+# Some analyzers
+# CALL db.index.fulltext.listAvailableAnalyzers
+simple
+standard-no-stop-words
+unicode_whitespace
 
 CALL db.index.fulltext.queryNodes("broad_search_index", "econtext") YIELD node, score
 RETURN node, score

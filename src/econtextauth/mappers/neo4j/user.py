@@ -363,6 +363,9 @@ class User(StructuredNode, UserInterface):
     def search(search, organization_flag=False, application_flag=False, group_flag=False, apikey_flag=False, limit=25, offset=0, order_by='email', *args, **kwargs) -> SetUser:
         """
         Search for Users
+        
+        @see documentation for econtextauth.mappers.neo4j.__init__ for instructions on creating the index
+        
         :param search:
         :param organization_flag:
         :param application_flag:
