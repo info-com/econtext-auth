@@ -1,12 +1,5 @@
 """
-Migration scripts for moving from an old database into Neo4j
-
-Inputs should be JSON of the following:
-
-* Applications
-* Groups
-* Organizations
-* Users
+Migration scripts for moving from an old database (rethinkdb) into Neo4j
 
 Organizations need to imported before Users may be added in. For the
 RethinkDB version of eContextAuth, there was no concept of an

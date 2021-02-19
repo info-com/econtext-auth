@@ -34,7 +34,7 @@ CALL db.index.fulltext.createNodeIndex(
     "broad_search_index",
     ["User", "Organization"],
     ["username", "email", "name", "description"],
-    { analyzer: 'simple' }
+    { analyzer: 'unicode_whitespace' }
 )
 
 CALL db.index.fulltext.queryNodes("broad_search_index", "econtext") YIELD node, score
