@@ -7,7 +7,10 @@ Generally the preferred method of install, currently, is to create a virtual env
 $ python3 -m virtualenv econtext-auth
 $ source econtext-auth/bin/activate
 $ pip install git+ssh://git@github.com/info-com/econtext-auth
+$ neomodel_install_labels econtextauth.mappers.neo4j --db bolt://neo4j:neo4j@localhost:7687
 ```
+
+The last line here installs indexes and constraints for the object models.
 
 You may need to manually install gunicorn and gevent as they can sometimes be a little bit tricky.
 

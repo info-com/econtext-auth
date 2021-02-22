@@ -47,6 +47,15 @@ CALL db.index.fulltext.queryNodes("broad_search_index", "econtext") YIELD node, 
 RETURN node, score
 """
 
+CREATE_INDEX_CYPHER = """CALL db.index.fulltext.createNodeIndex(
+    "broad_search_index",
+    ["User", "Organization"],
+    ["username", "email", "name", "description"],
+    { analyzer: 'standard-no-stop-words' }
+)
+"""
+CHECK_INDEX_QUERY = """CALL db.indexes() YIELD name WHERE name="broad_search_index" RETURN name"""
+
 
 def get_name():
     """
@@ -55,7 +64,7 @@ def get_name():
     return "neo4j"
 
 
-def check_connection():
+def check_connection() -> bool:
     """
     Run a simple query to see if the connection exists
     """
@@ -65,4 +74,19 @@ def check_connection():
         result = True
     except:
         raise Exception("Could not connect to Neo4j")
+    return result
+
+
+def check_indexes() -> bool:
+    """
+    Checks (and potentially installs) search indexes
+    """
+    result = False
+    try:
+        results, meta = db.cypher_query(CHECK_INDEX_QUERY)
+        if not results:
+            results, meta = db.cypher_query(CREATE_INDEX_CYPHER)
+        result = True
+    except:
+        raise Exeption("Unable to verify search indexes...manually create and try again")
     return result

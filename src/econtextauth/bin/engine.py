@@ -44,6 +44,8 @@ def prepare_route_objects(config):
         neo_config.DATABASE_URL = mapper_uri
         mapper = neo4j
     
+    mapper.check_indexes()
+    
     route_options = {
         'application_id': config_get(config, 'econtextauth', 'application_id'),
         'auth_cache': auth_cache,
