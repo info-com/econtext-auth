@@ -321,12 +321,15 @@ def main():
     mapper = neo4j
     parser = argparse.ArgumentParser(description='Migrate from RethinkDB to Neo4j.')
     parser.add_argument("--rethink", dest="rethink", default="127.0.0.1", help="RethinkDB Host", metavar="HOST")
-    parser.add_argument("--neo", dest="neo", default="bolt://neo4j:neo4j@127.0.0.1:7687", help="Neo4j Host",
-                        metavar="HOST")
+    parser.add_argument("--neo", dest="neo", default="bolt://neo4j:neo4j@127.0.0.1:7687", help="Neo4j Host", metavar="HOST")
+    parser.add_argument("--reformat", dest="reformat", type=bool, action='store_true', default=False, help="Completely erase the existing db first")
     options = parser.parse_args()
     
     remodel.connection.pool.configure(host=options.rethink, db='econtext_users')
     neo_config.DATABASE_URL = options.neo
+    
+    if options.reformat:
+        mapper.reformat_database()
     
     log.info("Processing Applications")
     applications = process_applications(mapper)

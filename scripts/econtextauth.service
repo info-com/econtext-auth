@@ -1,0 +1,24 @@
+# Install this file to /etc/systemd/system/econtextauth.service
+# Ensure that permissions to tmp and /var/log/econtextauth are correct (664)
+# Enable with systemctl enable econtextauth.service
+
+[Unit]
+Description=eContext Authentication/Authorization Service
+After=network.target
+StartLimitIntervalSec=1
+
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=econtext
+Group=wheel
+ExecStart=/opt/econtext/bin/econtextauth-engine -v
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+
+
+[Install]
+WantedBy=multi-user.target

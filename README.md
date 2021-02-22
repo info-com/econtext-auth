@@ -11,6 +11,7 @@ $ neomodel_install_labels econtextauth.mappers.neo4j --db bolt://neo4j:neo4j@loc
 ```
 
 The last line here installs indexes and constraints for the object models.
+@see https://neomodel.readthedocs.io/en/latest/getting_started.html#applying-constraints-and-indexes
 
 You may need to manually install gunicorn and gevent as they can sometimes be a little bit tricky.
 
@@ -25,6 +26,15 @@ There is a bug in remodel which is patched in my dev environment.  This bug prev
 removed.  The easy fix here is, once remodel is installed, to edit the remodel/models.py file and move line 113 down
 below 116.
 
+You can install to systemd using the provided econtextauth.service unit file:
+
+```shell
+$ sudo su -
+$ cp /path/to/econtextauth.service /etc/systemd/system/econtextauth.service
+$ chmod -r 0644 /var/log/econtextauth
+$ systemctl enable econtextauth.service
+```
+
 
 To run:
 =======
@@ -34,3 +44,10 @@ $ sudo econtextauth-engine -vvv
 ```
 
 Most robust logging, should tell you quite a bit.  Drop the "v" to reduce the logging more.
+
+If you've installed using systemd, then run the following to start:
+
+```shell
+$ sudo systemctl start econtextauth.service
+```
+
