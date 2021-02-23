@@ -76,7 +76,7 @@ class Application(object):
     
     def set_data(self, new_data):
         # new_data = [{'key': 'spam', 'value': 'eggs'}, ...]
-        new_data = frozenset(Data(**data) for data in new_data)
+        new_data = frozenset(Data(**data) for data in new_data if data['key'] != '')
         if self.data != new_data:
             self.data = new_data
             self.edits.add(('data', new_data))
@@ -89,7 +89,7 @@ class Application(object):
         :param new_data:
         :return:
         """
-        new_data = [{'key': k, 'value': v} for k, v in new_data.items()]
+        new_data = [{'key': k, 'value': v} for k, v in new_data.items() if k != '']
         return self.set_data(new_data)
     
     def set_parameters(self, new_parameters):
