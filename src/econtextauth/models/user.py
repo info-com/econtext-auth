@@ -154,9 +154,12 @@ class User(object):
     
     def set_password(self, password, policies=None, *args, **kwargs):
         pw = self.strip_password(password)
+        old_password = self.password
         if not self.check_password(pw, policies=policies):
             raise Exception("An error occurred checking the password - please try again")
         self.password = hash_secret(pw)
+        if self.password != old_password:
+            self.edits.add(('password', self.password))
     
     def set_name(self, new_name):
         if self.name != new_name:
