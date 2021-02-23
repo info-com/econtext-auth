@@ -61,6 +61,8 @@ class Data(StructuredNode, DataInterface):
                 existing_node._object.save()
             # new node
             else:
+                if data_node.key == '':
+                    continue
                 data_node._object = Data(
                     key=data_node.key,
                     value=data_node.value
