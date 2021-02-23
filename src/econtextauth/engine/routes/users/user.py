@@ -165,6 +165,19 @@ class User(Route):
             o.set_data(body['data'])
         
         o = mapper.user.User.update_from_object(o)
+        
+        if 'groups' in body and isinstance(body['groups'], (list,)):
+            for groupid in body['groups']:
+                g = mapper.group.Group.get_by_uid(groupid)
+                if g:
+                    mapper.user.User.attach_group(o, g)
+        
+        if 'applications' in body and isinstance(body['applications'], (list,)):
+            for appid in body['applications']:
+                a = mapper.application.Application.get_by_uid(appid)
+                if a:
+                    mapper.user.User.attach_application(o, a)
+        
         resp.body = {"user": o.to_dict()}
         return True
 
