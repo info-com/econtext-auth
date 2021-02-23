@@ -102,9 +102,9 @@ class User(object):
             
             # Extra relations
             'data': [x.to_dict() for x in self.data],
-            'apikeys': [x.to_dict_minimal() for x in self.apikeys],
-            'applications': [x.to_dict() for x in self.applications],
-            'groups': [x.to_dict() for x in self.groups]
+            'apikeys': sorted([x.to_dict_minimal() for x in self.apikeys], key=lambda x: x['id']),
+            'applications': sorted([x.to_dict() for x in self.applications], key=lambda x: x['name']),
+            'groups': sorted([x.to_dict() for x in self.groups], key=lambda x: x['name'])
         }
     
     def to_dict_minimal(self):

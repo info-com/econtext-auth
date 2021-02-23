@@ -43,8 +43,8 @@ class Organization(object):
             'created_at': str(self.created_at or ''),
             'modified_at': str(self.modified_at or ''),
             'data': [x.to_dict() for x in self.data],
-            'admins': [x.to_dict_minimal() for x in self.admins],
-            'users': [x.to_dict_minimal() for x in self.users],
+            'admins': sorted([x.to_dict_minimal() for x in self.admins], key=lambda x: x['username']),
+            'users': sorted([x.to_dict_minimal() for x in self.users], key=lambda x: x['username']),
             'custom_data': self.build_data_dict(),
             'href': '{}/api/organizations/organization/{}'.format(get_base_url(), self.uid),
         }
