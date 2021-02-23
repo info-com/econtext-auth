@@ -102,7 +102,7 @@ class User(object):
             
             # Extra relations
             'data': [x.to_dict() for x in self.data],
-            'apikeys': sorted([x.to_dict_minimal() for x in self.apikeys], key=lambda x: x['id']),
+            'apikeys': sorted([x.to_dict_minimal() for x in self.apikeys], key=lambda x: x['created_at'], reverse=True),
             'applications': sorted([x.to_dict() for x in self.applications], key=lambda x: x['name']),
             'groups': sorted([x.to_dict() for x in self.groups], key=lambda x: x['name'])
         }
