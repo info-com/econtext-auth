@@ -47,6 +47,13 @@ class User(Route):
         """
         mapper = self.meta.get('mapper')
         body = req.context['body']
+
+        email = body.get('email', '').strip()
+        username = body.get('username', '').strip()
+        if not email and not username:
+            raise Exception("A valid email address is required to create a new user")
+        if email and not username:
+            username = email
         
         # pull in related nodes
         _org_id = body.get('organization', None)
@@ -60,12 +67,18 @@ class User(Route):
         group_ids = {o.uid for o in groups}
         
         if _org_id is None:
-            # create a new organization...
-            company_name = body.get('name')
+            # See if an organization exists, or create a new one
             if 'custom_data' in body and 'company_name' in body['custom_data']:
                 company_name = body['custom_data']['company_name']
-            org = mapper.organization.Organization.create_from_object(Organization(name=company_name))
-            body['org_admin'] = True
+                org = mapper.organization.Organization.get_by_name(name=company_name)
+            
+            if not org:
+                # create a new organization
+                company_name = body.get('name')
+                if 'custom_data' in body and 'company_name' in body['custom_data']:
+                    company_name = body['custom_data']['company_name']
+                org = mapper.organization.Organization.create_from_object(Organization(name=company_name))
+                body['org_admin'] = True
         
         if not org:
             raise Exception(f"Organization not found: {_org_id}")
@@ -79,8 +92,8 @@ class User(Route):
         o = EUser(
             uid=body.get('id'),
             name=body.get('name', '').strip(),
-            email=body.get('email', '').strip(),
-            username=body.get('username', '').strip(),
+            email=email,
+            username=username,
             status=body.get('status', 'ENABLED'),
             created_at=parse_datetime(body.get('created_at')),
             modified_at=parse_datetime(body.get('modified_at')),

@@ -61,6 +61,14 @@ class Organization(StructuredNode, OrganizationInterface):
         return org
     
     @staticmethod
+    def get_by_name(name, user_flag=False, *args, **kwargs) -> EOrganization:
+        org = None
+        _org = Organization.nodes.get_or_none(name=name)
+        if _org:
+            org = _org.to_object(user_flag=user_flag)
+        return org
+    
+    @staticmethod
     def get_all(user_flag=False, limit=25, offset=0, order_by='name', *args, **kwargs) -> set:
         orgs = [
             x.to_object(user_flag=user_flag) for x in Organization.nodes.order_by(order_by)[offset: offset+limit]

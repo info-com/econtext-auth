@@ -28,6 +28,19 @@ class OrganizationInterface(object):
         :return:
         """
         raise NotImplementedError()
+    
+    @staticmethod
+    def get_by_name(name, user_flag=False, *args, **kwargs) -> Organization:
+        """
+        Get an Organization object hydrated by the DB using it's name
+
+        :param name:
+        :param user_flag:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        raise NotImplementedError()
 
     @staticmethod
     def get_all(user_flag=False, limit=25, offset=0, order_by='name', *args, **kwargs) -> set:
