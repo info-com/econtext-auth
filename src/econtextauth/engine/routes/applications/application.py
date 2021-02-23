@@ -54,6 +54,8 @@ class Application(Route):
             modified_at=parse_datetime(body.get('modified_at'))
         )
         for k, v in body.get('custom_data', dict()).items():
+            if k in ('', '_empty_'):
+                continue
             app.data.add(Data(
                 key=k,
                 value=v

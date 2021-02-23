@@ -106,6 +106,8 @@ class User(Route):
         o.groups = groups
         
         for k, v in body.get('custom_data', dict()).items():
+            if k in ('', '_empty_'):
+                continue
             o.data.add(Data(
                 key=k,
                 value=v
