@@ -395,7 +395,7 @@ class User(StructuredNode, UserInterface):
                 users_dict[u['uid']] = User.inflate(u)
         
         # substring matches against API keys
-        query = "MATCH (k:ApiKey)<--(u:User) WHERE k.key CONTAINS $search_term RETURN u"
+        query = "MATCH (k:ApiKey)<--(u:User) WHERE k.key CONTAINS toUpper($search_term) RETURN u"
         results, meta = db.cypher_query(query, params)
         for (u,) in results:
             if u and u['uid'] not in users_dict:
