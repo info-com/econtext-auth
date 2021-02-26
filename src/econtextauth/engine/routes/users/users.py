@@ -34,5 +34,6 @@ class Users(Route):
             users = [u.to_dict_minimal() for u in users]
         else:
             users = [u.to_dict() for u in users]
+        
         resp.body = {"users": users}
         return True

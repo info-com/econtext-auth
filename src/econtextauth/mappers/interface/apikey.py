@@ -3,7 +3,7 @@ from ...models.apikey import ApiKey as EApiKey
 
 class ApiKeyInterface(object):
     
-    def to_object(self, *args, **kwargs) -> EApiKey:
+    def to_object(self, user_flag=True, *args, **kwargs) -> EApiKey:
         """
         Return an ApiKey object from the DB to an ApiKey Model
 

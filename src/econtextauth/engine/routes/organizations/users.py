@@ -24,7 +24,7 @@ class Users(Route):
         if not o:
             raise falcon.HTTPInvalidParam("Organization could not be found", orgid)
         
-        users = [u.to_dict_minimal() for u in o.users]
+        users = sorted([u.to_dict_minimal() for u in o.users], key=lambda x: x['username'])
         
         resp.body = {"users": users}
         return True

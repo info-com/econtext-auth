@@ -27,8 +27,7 @@ class ApiKey(StructuredNode, ApiKeyInterface):
     # relationships
     user = RelationshipFrom('.user.User', 'AUTHENTICATES_USER', cardinality=One)
     
-    def to_object(self, *args, **kwargs) -> EApiKey:
-        user = self.user.get()
+    def to_object(self, user_flag=True, *args, **kwargs) -> EApiKey:
         apikey = EApiKey(
             key=self.key,
             secret=self.secret,
@@ -38,7 +37,9 @@ class ApiKey(StructuredNode, ApiKeyInterface):
             created_at=self.created_at,
             modified_at=self.modified_at,
         )
-        apikey.user = user.to_object()
+        if user_flag:
+            user = self.user.get()
+            apikey.user = user.to_object()
         apikey._object = self
         return apikey
     
@@ -47,6 +48,18 @@ class ApiKey(StructuredNode, ApiKeyInterface):
         if not o._object:
             o._object = ApiKey.nodes.get(key=o.key)  # will raise exception if not found
         return o._object
+    
+    @staticmethod
+    def get_apikeys_by_userids(userids: list):
+        """
+        Return a list of ApiKeys
+        """
+        query = "MATCH (k:ApiKey)<-[:AUTHENTICATES_USER]-(u:User) WHERE u.uid IN $user_ids RETURN u.uid, k"
+        results, meta = db.cypher_query(query, {'user_ids': userids})
+        apikeys = list()
+        for uid, key in results:
+            apikeys.append((uid, ApiKey.inflate(key)))
+        return [(uid, o.to_object(user_flag=False)) for uid, o in apikeys]
     
     @staticmethod
     def get_by_key(key, *args, **kwargs) -> EApiKey:

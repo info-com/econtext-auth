@@ -89,7 +89,7 @@ def check_indexes() -> bool:
             results, meta = db.cypher_query(CREATE_INDEX_CYPHER)
         result = True
     except:
-        raise Exeption("Unable to verify search indexes...manually create and try again")
+        raise Exception("Unable to verify search indexes...manually create and try again")
     return result
 
 

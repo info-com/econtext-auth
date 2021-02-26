@@ -65,6 +65,7 @@ class User(object):
         self.data = set()           # from other nodes
         
         self.edits = set()
+        self._object = None
     
     def build_data_dict(self):
         """
@@ -203,3 +204,15 @@ class User(object):
         """
         new_data = [{'key': k, 'value': v} for k, v in new_data.items() if k != '']
         return self.set_data(new_data)
+    
+    def set_apikeys(self, apikeys):
+        """
+        Manually set a list of ApiKeys - we also set the user in the apikey.
+        Since the Href for an ApiKey contains a user id, and we don't store
+        user ids inside of apikeys themselves...for better or for worse. We always
+        need to have the user attribute of an apikey hydrated in order to output it.
+        """
+        if apikeys:
+            for apikey in apikeys:
+                apikey.user = self
+                self.apikeys.add(apikey)
