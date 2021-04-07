@@ -149,6 +149,7 @@ class Authenticate(Route):
             tomorrow = now + datetime.timedelta(days=1)
             iss = 'https://auth.econtext.com/api/authenticate'
             groups = [g.name for g in u.groups if g.application == a.uid]
+            org_data = {'organization_id': u.organization.uid, 'name': u.organization.name}
             name = u.name
             
             claims = {
@@ -159,7 +160,8 @@ class Authenticate(Route):
                 'sub': u.uid,                 # user id
                 'aud': a.uid,                 # target application,
                 'groups': groups,
-                'name': name
+                'name': name,
+                'org': org_data
             }
             access_token = jwt.encode(
                 claims,

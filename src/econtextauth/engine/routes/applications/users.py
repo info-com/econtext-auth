@@ -32,6 +32,14 @@ class Users(Route):
         for uid, apikey in apikeys:
             apikeys_by_userid[uid].append(apikey)
         
+        organizations = mapper.organization.Organization.get_organizations_by_userids(userids)
+        # add the orgs to the users...
+        user_organizations = dict()
+        for uid, org in organizations:
+            user_organizations[uid] = org
+        for u in app.users:
+            u.organization = user_organizations[u.uid]
+        
         if req.get_param('minimal'):
             users = [u.to_dict_minimal() for u in app.users]
         else:

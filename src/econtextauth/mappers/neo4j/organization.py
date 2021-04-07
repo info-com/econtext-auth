@@ -53,6 +53,22 @@ class Organization(StructuredNode, OrganizationInterface):
         return o
     
     @staticmethod
+    def get_organizations_by_userids(userids: list):
+        """
+        Return a list of (userid, Organization) tuples
+        """
+        query = "MATCH (n:Organization)<-[:IN_ORGANIZATION]-(u:User) WHERE u.uid IN $user_ids RETURN u.uid, n"
+        results, meta = db.cypher_query(query, {'user_ids': userids})
+        organizations = dict()
+        organizations_by_userids = list()
+        for uid, org in results:
+            if org['uid'] not in organizations:
+                o = Organization.inflate(org)
+                organizations[org['uid']] = o.to_object()
+            organizations_by_userids.append((uid, organizations[org['uid']]))
+        return organizations_by_userids
+    
+    @staticmethod
     def get_by_uid(uid, user_flag=False, *args, **kwargs) -> EOrganization:
         org = None
         _org = Organization.nodes.get_or_none(uid=uid)
